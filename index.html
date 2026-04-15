@@ -3,87 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEDI SIFT | System</title>
+    <title>MEDI SIFT | Hospital System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background: #f8fafc; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card-login { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 350px; text-align: center; }
+        :root { --med-blue: #0ea5e9; --soft-bg: #f8fafc; }
+        body { background: var(--soft-bg); font-family: 'Plus Jakarta Sans', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .auth-card { background: white; padding: 40px; border-radius: 30px; width: 90%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); text-align: center; border: 1px solid #f1f5f9; }
+        .brand-icon { background: var(--med-blue); width: 60px; height: 60px; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 10px 20px rgba(14, 165, 233, 0.2); }
+        .form-control { border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; margin-bottom: 12px; text-align: center; }
+        .btn-main { background: var(--med-blue); color: white; border: none; padding: 14px; border-radius: 14px; width: 100%; font-weight: 700; transition: 0.3s; margin-top: 10px; }
+        .btn-guest { background: white; color: var(--med-blue); border: 2px solid #f0f9ff; padding: 12px; border-radius: 14px; width: 100%; margin-top: 10px; font-weight: 600; }
         .hidden { display: none !important; }
-        #debug-msg { font-size: 10px; color: red; margin-top: 10px; }
+        #loader { color: var(--med-blue); font-size: 0.85rem; margin-top: 20px; font-weight: 600; }
     </style>
 </head>
 <body>
 
-<div id="login-ui" class="card-login">
-    <h3 class="fw-bold text-primary mb-4">MEDI SIFT</h3>
-    <input type="text" id="u" class="form-control mb-2 text-center" placeholder="Username">
-    <input type="password" id="p" class="form-control mb-3 text-center" placeholder="Password">
-    <button onclick="auth('admin')" id="btnA" class="btn btn-primary w-100 mb-2">Masuk Admin</button>
-    <button onclick="auth('guest')" id="btnG" class="btn btn-outline-secondary w-100">Lihat Jadwal (Tamu)</button>
-    <div id="loading" class="mt-3 small text-muted hidden">🔄 Sedang verifikasi...</div>
-    <div id="debug-msg"></div>
+<div id="login-ui" class="auth-card">
+    <div class="brand-icon">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+    </div>
+    <h4 class="fw-bold mb-1">MEDI SIFT</h4>
+    <p class="text-muted small mb-4">Smart Hospital Scheduling</p>
+    
+    <input type="text" id="userInput" class="form-control" placeholder="Username">
+    <input type="password" id="passInput" class="form-control" placeholder="Password">
+    
+    <button onclick="eksekusi('admin')" class="btn btn-main">Masuk Admin</button>
+    <button onclick="eksekusi('guest')" class="btn btn-guest">Lihat Jadwal (Tamu)</button>
+    <div id="loader" class="hidden">🔄 Menghubungkan ke pusat data...</div>
 </div>
 
-<div id="dash-ui" class="hidden text-center">
-    <div class="card-login">
-        <h4 id="welcome" class="fw-bold text-success"></h4>
-        <p>Akses Berhasil Terbuka</p>
-        <button onclick="location.reload()" class="btn btn-danger w-100 mt-3">Keluar</button>
+<div id="dash-ui" class="hidden text-center w-100 p-4">
+    <div class="auth-card" style="max-width: 800px; margin: 0 auto;">
+        <h3 id="welcome" class="fw-bold text-primary mb-4"></h3>
+        <div id="data-area" class="table-responsive small">
+            </div>
+        <button onclick="location.reload()" class="btn btn-outline-danger mt-4 rounded-3">Keluar Sistem</button>
     </div>
 </div>
 
 <script>
-    // GANTI URL DI BAWAH INI DENGAN URL BARU HASIL "NEW DEPLOYMENT"
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbytNu693fNb9sD4ac8gzsvBB1UaM2a8Y2ODVlTFQgFYWzArVkm-2Kl3EsY9m6sW60SUpg/exec";
+    // URL API yang sudah Anda konfirmasi berhasil
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZxSlkwBzm06xCmKxm7xVckSxoTKgyRpY-5moj5nLWRvkgut_vFXGuQeHaperOvLNGKw/exec";
 
-    function auth(role) {
-        const user = document.getElementById('u').value;
-        const pass = document.getElementById('p').value;
-        const load = document.getElementById('loading');
-        const debug = document.getElementById('debug-msg');
+    function eksekusi(role) {
+        const u = document.getElementById('userInput').value;
+        const p = document.getElementById('passInput').value;
+        const loader = document.getElementById('loader');
 
-        if(role === 'admin' && (!user || !pass)) return alert("Isi Username & Password!");
+        if(role === 'admin' && (!u || !p)) return alert("Isi Username & Password!");
 
-        load.classList.remove('hidden');
-        debug.innerText = "";
+        loader.classList.remove('hidden');
 
-        // Buat ID unik untuk callback
-        const cbName = "callback_" + Math.floor(Math.random() * 100000);
-        
-        // Timer Error (jika 10 detik tidak ada respon)
-        const timeout = setTimeout(() => {
-            load.classList.add('hidden');
-            debug.innerText = "Error: Timeout (Google Script tidak merespon). Cek apakah URL sudah 'Anyone'.";
-        }, 10000);
-
+        // Gunakan Teknik JSONP (Satu-satunya yang stabil untuk GitHub -> Google)
+        const cbName = 'cb_' + Math.floor(Math.random() * 100000);
         window[cbName] = function(res) {
-            clearTimeout(timeout);
-            load.classList.add('hidden');
+            loader.classList.add('hidden');
             if(res.status === "success") {
-                document.getElementById('login-ui').classList.add('hidden');
-                document.getElementById('dash-ui').classList.remove('hidden');
-                document.getElementById('welcome').innerText = "Halo, " + (res.name || "Tamu");
+                tampilDashboard(res, role);
             } else {
-                debug.innerText = "Server: " + res.message;
+                alert(res.message);
             }
-            // Bersihkan sisa-sisa script tag
-            const oldScript = document.getElementById('jsonp-tag');
-            if(oldScript) document.body.removeChild(oldScript);
+            document.body.removeChild(document.getElementById('api_tag'));
             delete window[cbName];
         };
 
-        const script = document.createElement('script');
-        script.id = 'jsonp-tag';
-        script.src = `${SCRIPT_URL}?action=${role==='admin'?'login':'get_roster'}&user=${encodeURIComponent(user)}&pw=${encodeURIComponent(pass)}&callback=${cbName}`;
+        const finalUrl = `${SCRIPT_URL}?action=${role==='admin'?'login':'get_roster'}&user=${encodeURIComponent(u)}&pw=${encodeURIComponent(p)}&callback=${cbName}`;
         
-        // Tangkap error jika script gagal dimuat (URL Salah)
-        script.onerror = function() {
-            clearTimeout(timeout);
-            load.classList.add('hidden');
-            debug.innerText = "Error: Gagal memanggil script. Cek kembali URL EXEC Anda.";
-        };
-
+        const script = document.createElement('script');
+        script.id = 'api_tag';
+        script.src = finalUrl;
         document.body.appendChild(script);
+    }
+
+    function tampilDashboard(res, role) {
+        document.getElementById('login-ui').classList.add('hidden');
+        document.getElementById('dash-ui').classList.remove('hidden');
+        document.getElementById('welcome').innerText = "Halo, " + (role === 'admin' ? res.name : "Tamu");
+        
+        if(res.data) {
+            let tableHtml = '<table class="table table-bordered table-sm"><tbody>';
+            res.data.forEach((row, index) => {
+                tableHtml += `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`;
+            });
+            tableHtml += '</tbody></table>';
+            document.getElementById('data-area').innerHTML = tableHtml;
+        } else {
+            document.getElementById('data-area').innerHTML = "<p class='text-muted'>Mempersiapkan jadwal...</p>";
+        }
     }
 </script>
 </body>
