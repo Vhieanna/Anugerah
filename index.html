@@ -1,138 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>MediSift</title>
-
-<style>
-body{font-family:Arial;background:#eef7fb}
-.card{background:#fff;margin:20px;padding:20px;border-radius:10px}
-.btn{background:#2bb3c0;color:white;border:none;padding:8px;margin:5px}
-.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
-.box{background:#f9f9f9;padding:10px;border-radius:8px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEDI SIFT | Hospital System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #0ea5e9; --bg: #f8fafc; }
+        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card-auth { background: white; padding: 40px; border-radius: 30px; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.05); text-align: center; }
+        .btn-primary { background: var(--primary); border: none; padding: 12px; border-radius: 12px; font-weight: 700; width: 100%; margin-top: 10px; }
+        .btn-guest { background: white; color: var(--primary); border: 2px solid #e2e8f0; padding: 11px; border-radius: 12px; font-weight: 600; width: 100%; margin-top: 10px; }
+        .form-control { border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px; text-align: center; }
+        .hidden { display: none !important; }
+    </style>
 </head>
-
 <body>
 
-<div class="card" id="loginPage">
-<h2>MediSift</h2>
-<input id="u" placeholder="username"><br>
-<input id="p" type="password"><br>
-<button onclick="login()">Login</button>
-<button onclick="guest()">Guest</button>
+<div id="auth-ui" class="card-auth">
+    <div style="background: var(--primary); width: 60px; height: 60px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+    </div>
+    <h4 class="fw-bold mb-1">MEDI SIFT</h4>
+    <p class="text-muted small mb-4">Smart Scheduling System</p>
+    
+    <input type="text" id="userInput" class="form-control" placeholder="Username">
+    <input type="password" id="passInput" class="form-control" placeholder="Password">
+    
+    <button onclick="handleLogin('admin')" class="btn btn-primary">Masuk Admin</button>
+    <button onclick="handleLogin('guest')" class="btn btn-guest">Lihat Jadwal (Tamu)</button>
+    <div id="load-info" class="text-primary small mt-3 hidden">Menghubungkan ke pusat data...</div>
 </div>
 
-<div id="app" style="display:none">
-
-<div class="card"><b id="user"></b></div>
-
-<div class="card">
-<h3>Request</h3>
-<div id="req"></div>
-</div>
-
-<div class="card">
-<button onclick="gen()">Generate</button>
-<button onclick="save()">Finalisasi</button>
-<button onclick="print()">PDF</button>
-</div>
-
-<div class="card">
-<h3>Kalender</h3>
-<div id="kal" class="grid"></div>
-</div>
-
+<div id="dash-ui" class="hidden text-center">
+    <div class="card-auth">
+        <h3 id="welcome-msg" class="fw-bold text-primary"></h3>
+        <p class="text-muted">Akses Terverifikasi</p>
+        <button onclick="location.reload()" class="btn btn-outline-danger w-100 mt-4">Keluar</button>
+    </div>
 </div>
 
 <script>
-const GAS="https://script.google.com/macros/s/AKfycbyO4ms9ohkBWCMgtbipw9LlbyM-4qFZ6_X6gapsscP_Y6GXLn8nLS6xg5i0L9fP5DrGoQ/exec";
+    // MASUKKAN URL HASIL DEPLOY GAS ANDA DI SINI
+    const API_URL = "https://script.google.com/macros/s/AKfycbxNHydBvOoqti909FKcNAQiL0Dlj_3Gc6t5vWAdZVk3u_OuKaaWIDpCaH_OE3hisvR_-A/exec";
 
-let role="";
+    function handleLogin(role) {
+        const u = document.getElementById('userInput').value;
+        const p = document.getElementById('passInput').value;
+        const loader = document.getElementById('load-info');
 
-// LOGIN
-function login(){
-fetch(GAS,{
-method:"POST",
-body:JSON.stringify({
-action:"login",
-username:u.value,
-password:p.value
-})
-}).then(r=>r.json()).then(res=>{
-if(res.role==="admin"){
-role="admin";
-start(res.name);
-}else alert("Login gagal");
-});
-}
+        if(role === 'admin' && (!u || !p)) return alert("Isi username dan password!");
 
-function guest(){
-role="guest";
-start("Guest");
-}
+        loader.classList.remove('hidden');
 
-function start(name){
-loginPage.style.display="none";
-app.style.display="block";
-user.innerText="Login: "+name;
+        const cbName = 'jsonp_' + Date.now();
+        window[cbName] = function(res) {
+            loader.classList.add('hidden');
+            if(res.status === "success") {
+                document.getElementById('auth-ui').classList.add('hidden');
+                document.getElementById('dash-ui').classList.remove('hidden');
+                document.getElementById('welcome-msg').innerText = "Halo, " + (role === 'admin' ? res.name : "Tamu");
+            } else {
+                alert(res.message);
+            }
+            document.body.removeChild(document.getElementById('api_call'));
+            delete window[cbName];
+        };
 
-loadReq();
-}
-
-// REQUEST
-function loadReq(){
-fetch(GAS+"?action=requests")
-.then(r=>r.json())
-.then(d=>{
-let h="";
-d.forEach(x=>{
-h+=`
-<div>${x.nama} ${x.tanggal} ${x.jenis} ${x.status}
-${role==="admin"&&x.status==="PENDING"?
-`<button onclick="ap(${x.row})">✔</button>
-<button onclick="rj(${x.row})">✖</button>`:""}
-</div>`;
-});
-req.innerHTML=h;
-});
-}
-
-function ap(r){
-fetch(GAS,{method:"POST",body:JSON.stringify({action:"approve",row:r})})
-.then(loadReq);
-}
-
-function rj(r){
-fetch(GAS,{method:"POST",body:JSON.stringify({action:"reject",row:r})})
-.then(loadReq);
-}
-
-// GENERATE
-function gen(){
-fetch(GAS+"?action=generate")
-.then(r=>r.json())
-.then(render);
-}
-
-function render(d){
-let h="";
-for(let t in d){
-h+=`<div class="box"><b>${t}</b><br>`;
-for(let s in d[t]){
-h+=`${s}: ${d[t][s]}<br>`;
-}
-h+="</div>";
-}
-kal.innerHTML=h;
-}
-
-// SAVE
-function save(){
-fetch(GAS+"?action=save")
-.then(()=>alert("Final tersimpan"));
-}
+        const params = `action=${role==='admin'?'login':'get_roster'}&user=${encodeURIComponent(u)}&pw=${encodeURIComponent(p)}&callback=${cbName}`;
+        const script = document.createElement('script');
+        script.id = 'api_call';
+        script.src = `${API_URL}?${params}`;
+        document.body.appendChild(script);
+    }
 </script>
-
 </body>
 </html>
