@@ -3,94 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aster Atas | Smart Hospital</title>
+    <title>Aster Atas | System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #0ea5e9; --bg: #f8fafc; }
-        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
-        #login-page { height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at top right, #f0f9ff 0%, #ffffff 100%); }
-        .login-card { background: white; padding: 45px; border-radius: 32px; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; text-align: center; }
-        .brand-icon { width: 64px; height: 64px; background: var(--primary); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; box-shadow: 0 8px 20px rgba(14, 165, 233, 0.2); }
-        .btn-main { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 16px; font-weight: 600; width: 100%; margin-top: 15px; transition: 0.3s; }
-        .btn-main:hover { background: #0284c7; transform: translateY(-2px); }
-        .btn-guest { background: transparent; color: #64748b; border: 2px solid #f1f5f9; padding: 12px; border-radius: 16px; width: 100%; margin-top: 12px; font-weight: 500; }
+        :root { --primary: #0ea5e9; }
+        body { background: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .login-card { background: white; padding: 40px; border-radius: 24px; width: 100%; max-width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
+        .btn-main { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 12px; width: 100%; font-weight: 600; margin-top: 15px; }
         .hidden { display: none !important; }
-        .main-content { padding: 40px; margin-left: 280px; }
-        .sidebar { width: 280px; position: fixed; height: 100vh; background: white; border-right: 1px solid #f1f5f9; padding: 30px; }
     </style>
 </head>
 <body>
 
-<div id="login-page">
-    <div class="login-card">
-        <div class="brand-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-        </div>
-        <h4 class="fw-bold mb-1">Aster Atas</h4>
-        <p class="small text-muted mb-4">Rumah Sakit Management System</p>
-        
-        <input type="password" id="passInput" class="form-control text-center py-3 border-0 bg-light rounded-4 mb-2" placeholder="Masukkan Password">
-        
-        <button onclick="doLogin()" id="btnLogin" class="btn-main">Masuk Sebagai Admin</button>
-        <button onclick="enterDashboard(false)" class="btn-guest">Lihat Jadwal (Tamu)</button>
-    </div>
+<div id="login-section" class="login-card">
+    <h4 class="fw-bold mb-4">Aster Atas</h4>
+    <input type="password" id="passInput" class="form-control text-center py-3 rounded-3 mb-3" placeholder="Password Admin">
+    <button onclick="handleLogin()" id="btnLogin" class="btn-main">Masuk Sebagai Admin</button>
 </div>
 
-<div id="main-dashboard" class="hidden">
-    <div class="sidebar">
-        <h5 class="fw-bold mb-5">Menu Utama</h5>
-        <div id="admin-menu" class="hidden">
-            <p class="small text-muted fw-bold">ADMIN PANEL</p>
-            <button class="btn btn-light w-100 text-start mb-2 rounded-3">🚀 Generate Roster</button>
-            <button class="btn btn-light w-100 text-start mb-2 rounded-3">📝 Edit Staf</button>
-        </div>
-        <button onclick="location.reload()" class="btn btn-outline-danger w-100 rounded-3 mt-5">Keluar</button>
-    </div>
-    <div class="main-content">
-        <h2 class="fw-bold">Selamat Datang di Aster Atas</h2>
-        <p class="text-muted">Gunakan menu di samping untuk mengelola jadwal.</p>
+<div id="dashboard-section" class="hidden">
+    <div class="p-5 bg-white rounded-4 shadow">
+        <h2 class="fw-bold text-primary text-center">Login Berhasil!</h2>
+        <p class="text-center mt-3">Selamat datang di Dashboard Admin Aster Atas.</p>
+        <button onclick="location.reload()" class="btn btn-outline-danger w-100 mt-4">Keluar</button>
     </div>
 </div>
 
 <script>
-    // GANTI URL DI BAWAH INI DENGAN URL EXEC BARU ANDA
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxxteZqCXqHCTOwfqf3EoZCP2YD6DGvG8PjD3dlwL7NB22_Sc96BHgJ06nB9UVujRg3Bg/exec";
+    // MASUKKAN URL HASIL DEPLOY TERBARU ANDA DI SINI
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxjwyV_1T71hFjBZhL2xRQ-v18qzmgPID5z_KIs29rzM7BEG-VXSTG7WQajgd5oZR2Lzw/exec";
 
-    async function doLogin() {
+    async function handleLogin() {
         const pw = document.getElementById('passInput').value;
         const btn = document.getElementById('btnLogin');
-        
-        if(!pw) return alert("Masukkan password dulu!");
+
+        if(!pw) return alert("Masukkan password!");
 
         btn.disabled = true;
         btn.innerText = "Memverifikasi...";
 
         try {
-            // Menggunakan format URL yang benar untuk GAS
-            const target = `${GAS_URL}?action=login&pw=${encodeURIComponent(pw)}`;
-            const response = await fetch(target);
+            // Kita gunakan redirect mode agar tidak terblokir oleh Google Security
+            const response = await fetch(`${GAS_URL}?action=login&pw=${encodeURIComponent(pw)}`, {
+                method: 'GET',
+                mode: 'cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
+
             const data = await response.json();
 
-            if(data.status === "success") {
-                enterDashboard(true);
+            if (data.status === "success") {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('dashboard-section').classList.remove('hidden');
             } else {
                 alert(data.message);
-                btn.disabled = false;
-                btn.innerText = "Masuk Sebagai Admin";
+                resetBtn(btn);
             }
-        } catch (err) {
-            console.error(err);
-            alert("Koneksi gagal! Periksa kembali URL Deployment Anda.");
-            btn.disabled = false;
-            btn.innerText = "Masuk Sebagai Admin";
+        } catch (error) {
+            console.error(error);
+            alert("Koneksi gagal! Pastikan URL GAS benar dan sudah di-Deploy sebagai 'Anyone'.");
+            resetBtn(btn);
         }
     }
 
-    function enterDashboard(isAdmin) {
-        document.getElementById('login-page').classList.add('hidden');
-        document.getElementById('main-dashboard').classList.remove('hidden');
-        if(isAdmin) document.getElementById('admin-menu').classList.remove('hidden');
+    function resetBtn(btn) {
+        btn.disabled = false;
+        btn.innerText = "Masuk Sebagai Admin";
     }
 </script>
 </body>
