@@ -5,12 +5,11 @@
 <title>MediSift</title>
 
 <style>
-body { font-family: Arial; background:#eef7fb; }
-.card { background:white; padding:20px; margin:20px; border-radius:12px; }
-.btn { background:#2bb3c0; color:white; border:none; padding:8px; margin-top:5px; cursor:pointer; }
-.shift-P { color:green; }
-.shift-S { color:orange; }
-.shift-M { color:red; }
+body{font-family:Arial;background:#eef7fb}
+.card{background:white;margin:20px;padding:20px;border-radius:12px}
+.btn{background:#2bb3c0;color:white;border:none;padding:8px;margin:5px}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+.box{background:#f9f9f9;padding:10px;border-radius:8px}
 </style>
 </head>
 
@@ -18,151 +17,142 @@ body { font-family: Arial; background:#eef7fb; }
 
 <div class="card" id="loginPage">
 <h2>MediSift</h2>
-<input id="username" placeholder="Username"><br>
-<input id="password" type="password" placeholder="Password"><br>
-<button class="btn" onclick="login()">Login</button>
-<button class="btn" onclick="guest()">Guest</button>
+<input id="username" placeholder="username"><br>
+<input id="password" type="password"><br>
+<button onclick="login()">Login</button>
+<button onclick="guest()">Guest</button>
 </div>
 
 <div id="app" style="display:none">
 
 <div class="card">
-<b id="userInfo"></b>
+<b id="user"></b>
 </div>
 
 <div class="card">
-<h3>Review Request</h3>
-<div id="request"></div>
+<h3>Request</h3>
+<div id="req"></div>
 </div>
 
 <div class="card">
 <h3>Warning</h3>
-<div id="warning"></div>
+<div id="warn"></div>
 </div>
 
 <div class="card">
-<button class="btn" onclick="generate()">Generate Jadwal</button>
-<div id="jadwal"></div>
+<button onclick="generate()">Generate</button>
+<button onclick="saveFinal()">Finalisasi</button>
+<button onclick="exportPDF()">Export PDF</button>
+</div>
+
+<div class="card">
+<h3>Kalender</h3>
+<div id="kalender" class="grid"></div>
 </div>
 
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxASU2M0LmtGthDODnrPZVH9EypHG41uhpZPtfWSItpN_-SXZBgIbuB_tx2AIRSP0AN3Q/exec";
+const GAS="https://script.google.com/macros/s/AKfycby216bFHHG0LPnyQDQFL7D-Zp4KmIifQfUKAahW5BT717Q4bWiFNoUq2YsPAu2z8orncw/exec";
 
 let role="";
-let currentUser="";
 
 // LOGIN
 function login(){
-fetch(GAS_URL,{
+fetch(GAS,{
 method:"POST",
 body:JSON.stringify({
 action:"login",
 username:username.value,
 password:password.value
 })
-})
-.then(r=>r.json())
-.then(res=>{
+}).then(r=>r.json()).then(res=>{
 if(res.role==="admin"){
 role="admin";
-currentUser=res.name;
-showApp();
-}else alert("Login gagal");
+show(res.name);
+}else alert("gagal");
 });
 }
 
 function guest(){
 role="guest";
-currentUser="Guest";
-showApp();
+show("Guest");
 }
 
-function showApp(){
+function show(name){
 loginPage.style.display="none";
 app.style.display="block";
-userInfo.innerText="Login: "+currentUser;
+user.innerText="Login: "+name;
 
-loadRequest();
-loadWarning();
+loadReq();
+loadWarn();
 }
 
 // REQUEST
-function loadRequest(){
-fetch(GAS_URL+"?action=requests")
+function loadReq(){
+fetch(GAS+"?action=requests")
 .then(r=>r.json())
-.then(renderRequest);
-}
-
-function renderRequest(data){
-let div=document.getElementById("request");
-div.innerHTML="";
-
-data.forEach(r=>{
-let html=`
-<div>
-<b>${r.nama}</b> - ${r.tanggal} - ${r.jenis} (${r.shift_awal}→${r.shift_minta})<br>
-Status: ${r.status}<br>
-`;
-
-if(role==="admin" && r.status==="PENDING"){
+.then(d=>{
+let html="";
+d.forEach(x=>{
 html+=`
-<button onclick="approve(${r.row})">Approve</button>
-<button onclick="reject(${r.row})">Reject</button>
-`;
-}
-
-html+=`</div><hr>`;
-div.innerHTML+=html;
+<div>${x.nama} ${x.tanggal} ${x.jenis} ${x.status}
+${role==="admin"&&x.status==="PENDING"?
+`<button onclick="ap(${x.row})">✔</button>
+<button onclick="rj(${x.row})">✖</button>`:""}
+</div>`;
+});
+req.innerHTML=html;
 });
 }
 
-function approve(row){
-fetch(GAS_URL,{
-method:"POST",
-body:JSON.stringify({action:"approve",row:row})
-}).then(()=>loadRequest());
+function ap(r){
+fetch(GAS,{method:"POST",body:JSON.stringify({action:"approve",row:r})})
+.then(()=>loadReq());
 }
 
-function reject(row){
-fetch(GAS_URL,{
-method:"POST",
-body:JSON.stringify({action:"reject",row:row})
-}).then(()=>loadRequest());
+function rj(r){
+fetch(GAS,{method:"POST",body:JSON.stringify({action:"reject",row:r})})
+.then(()=>loadReq());
 }
 
 // WARNING
-function loadWarning(){
-fetch(GAS_URL+"?action=warning")
+function loadWarn(){
+fetch(GAS+"?action=warning")
 .then(r=>r.json())
-.then(res=>{
-let div=document.getElementById("warning");
-div.innerHTML="";
-res.forEach(w=>{
-div.innerHTML+=`<p style="color:red">${w.nama} ${w.tgl} : ${w.issue}</p>`;
-});
+.then(d=>{
+warn.innerHTML=d.map(x=>`<p style=color:red>${x.nama} ${x.msg}</p>`).join("");
 });
 }
 
 // GENERATE
 function generate(){
-fetch(GAS_URL+"?action=generate")
+fetch(GAS+"?action=generate")
 .then(r=>r.json())
-.then(renderJadwal);
+.then(render);
 }
 
-function renderJadwal(data){
-let div=document.getElementById("jadwal");
-div.innerHTML="";
-
+function render(data){
+let html="";
 for(let t in data){
-let html=`<b>${t}</b><br>`;
+html+=`<div class="box"><b>${t}</b><br>`;
 for(let s in data[t]){
-html+=`<span class="shift-${s}">${s}: ${data[t][s]}</span><br>`;
+html+=`${s}: ${data[t][s]}<br>`;
 }
-div.innerHTML+=html+"<br>";
+html+="</div>";
 }
+kalender.innerHTML=html;
+}
+
+// FINAL
+function saveFinal(){
+fetch(GAS+"?action=saveFinal")
+.then(()=>alert("Final tersimpan"));
+}
+
+// PDF
+function exportPDF(){
+window.print();
 }
 </script>
 
