@@ -1,94 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
-  <style>
-    body {
-      font-family: Arial;
-      background: #eef7fb;
-      margin: 0;
-    }
+<meta charset="UTF-8">
+<title>MediSift</title>
 
-    .container {
-      padding: 20px;
-    }
+<style>
+body {
+  font-family: Arial;
+  background: #eef7fb;
+}
 
-    .card {
-      background: white;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
+.card {
+  background: white;
+  padding: 20px;
+  margin: 20px;
+  border-radius: 12px;
+}
 
-    .btn {
-      background: linear-gradient(to right, #2bb3c0, #6dd5ed);
-      border: none;
-      padding: 10px 15px;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    input {
-      padding: 8px;
-      margin: 5px 0;
-      width: 200px;
-    }
-
-    h2 {
-      color: #2bb3c0;
-    }
-  </style>
+.btn {
+  background: #2bb3c0;
+  color: white;
+  border: none;
+  padding: 10px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+</style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="card" id="loginPage">
+  <h2>MediSift</h2>
+  <input id="username" placeholder="Username"><br>
+  <input id="password" type="password" placeholder="Password"><br>
+  <button class="btn" onclick="login()">Login</button>
+  <button class="btn" onclick="guest()">Guest</button>
+</div>
 
-  <!-- LOGIN -->
-  <div id="loginPage" class="card">
-    <h2>MediSift</h2>
-    <input id="username" placeholder="Username"><br>
-    <input id="password" type="password" placeholder="Password"><br>
-    <button class="btn" onclick="login()">Login</button>
-    <button class="btn" onclick="guest()">Guest</button>
+<div id="app" style="display:none">
+  <div class="card">
+    <h2>Konflik</h2>
+    <div id="konflik"></div>
   </div>
-
-  <!-- APP -->
-  <div id="app" style="display:none">
-
-    <div class="card">
-      <h2>Jadwal</h2>
-      <button class="btn" onclick="loadJadwal()">Generate</button>
-      <div id="jadwal"></div>
-    </div>
-
-    <div class="card">
-      <h2>Konflik</h2>
-      <div id="konflik"></div>
-    </div>
-
-  </div>
-
 </div>
 
 <script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwzrRANr1vrMsvKj6N1mS_yImFsZz07LapGgw_PX-MV6hDRITNplBofKAyEjLiw_a7euA/exec";
+
 let role = "";
 
+// ================= LOGIN =================
 function login() {
-  let u = document.getElementById("username").value;
-  let p = document.getElementById("password").value;
-
-  google.script.run.withSuccessHandler(res => {
+  fetch(GAS_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "login",
+      username: username.value,
+      password: password.value
+    })
+  })
+  .then(res => res.json())
+  .then(res => {
     if (res.role === "admin") {
       role = "admin";
       showApp();
     } else {
       alert("Login gagal");
     }
-  }).login(u, p);
+  });
 }
 
 function guest() {
@@ -97,27 +77,19 @@ function guest() {
 }
 
 function showApp() {
-  document.getElementById("loginPage").style.display = "none";
-  document.getElementById("app").style.display = "block";
+  loginPage.style.display = "none";
+  app.style.display = "block";
   loadKonflik();
 }
 
-function loadJadwal() {
-  google.script.run.withSuccessHandler(data => {
-    let div = document.getElementById("jadwal");
-    div.innerHTML = "";
-
-    for (let tgl in data) {
-      div.innerHTML += `<p>${tgl}</p>`;
-    }
-  }).generateSchedule();
-}
-
-// ================= KONFLIK =================
+// ================= LOAD =================
 function loadKonflik() {
-  google.script.run.withSuccessHandler(renderKonflik).getKonflikDetail();
+  fetch(GAS_URL + "?action=konflik")
+    .then(res => res.json())
+    .then(renderKonflik);
 }
 
+// ================= RENDER =================
 function renderKonflik(data) {
   let div = document.getElementById("konflik");
   div.innerHTML = "";
@@ -131,15 +103,13 @@ function renderKonflik(data) {
       html += `
         <label>
           <input type="radio" name="${tgl}" value="${c.nama}">
-          ${c.nama} (${c.jumlah} request)
+          ${c.nama} (${c.jumlah})
         </label><br>
       `;
     });
 
     if (role === "admin") {
-      html += `<button class="btn" onclick="pilih('${tgl}')">Pilih</button>`;
-    } else {
-      html += `<p><i>Mode Guest (view only)</i></p>`;
+      html += `<button onclick="pilih('${tgl}')">Pilih</button>`;
     }
 
     div.innerHTML += html;
@@ -155,31 +125,36 @@ function pilih(tanggal) {
     if (r.checked) dipilih = r.value;
   });
 
-  if (!dipilih) {
-    alert("Pilih salah satu dulu");
-    return;
-  }
-
   let ditolak = Array.from(radios)
     .map(r => r.value)
     .filter(n => n !== dipilih)[0];
 
-  google.script.run.withSuccessHandler(() => {
+  fetch(GAS_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "pilih",
+      tanggal: tanggal,
+      dipilih: dipilih,
+      ditolak: ditolak
+    })
+  })
+  .then(res => res.json())
+  .then(() => {
     alert("Disimpan");
     loadRekomendasi(ditolak);
-  }).simpanKeputusan(tanggal, dipilih, ditolak);
+  });
 }
 
 // ================= REKOMENDASI =================
 function loadRekomendasi(nama) {
-  google.script.run.withSuccessHandler(res => {
-    let html = `<h3>Rekomendasi untuk ${nama}</h3>`;
-    res.forEach(t => {
-      html += `<p>${t}</p>`;
-    });
+  fetch(GAS_URL + "?action=rekomendasi&nama=" + nama)
+    .then(res => res.json())
+    .then(res => {
+      let html = `<h3>Rekomendasi untuk ${nama}</h3>`;
+      res.forEach(t => html += `<p>${t}</p>`);
 
-    document.getElementById("konflik").innerHTML += html;
-  }).rekomendasiTanggal(nama);
+      document.getElementById("konflik").innerHTML += html;
+    });
 }
 </script>
 
