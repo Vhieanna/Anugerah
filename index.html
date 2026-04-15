@@ -5,186 +5,164 @@
 <title>MediSift</title>
 
 <style>
-body {
-  font-family: Arial;
-  background: #eef7fb;
-}
-
-.card {
-  background: white;
-  padding: 20px;
-  margin: 20px;
-  border-radius: 12px;
-}
-
-.btn {
-  background: linear-gradient(to right, #2bb3c0, #6dd5ed);
-  border: none;
-  padding: 10px;
-  color: white;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-h2 {
-  color: #2bb3c0;
-}
+body { font-family: Arial; background:#eef7fb; }
+.card { background:white; padding:20px; margin:20px; border-radius:12px; }
+.btn { background:#2bb3c0; color:white; border:none; padding:8px; margin-top:5px; cursor:pointer; }
+.shift-P { color:green; }
+.shift-S { color:orange; }
+.shift-M { color:red; }
 </style>
 </head>
 
 <body>
 
 <div class="card" id="loginPage">
-  <h2>MediSift</h2>
-
-  <label>Username</label><br>
-  <input id="username"><br>
-
-  <label>Password</label><br>
-  <input id="password" type="password"><br>
-
-  <button class="btn" onclick="login()">Login</button>
-  <button class="btn" onclick="guest()">Guest</button>
+<h2>MediSift</h2>
+<input id="username" placeholder="Username"><br>
+<input id="password" type="password" placeholder="Password"><br>
+<button class="btn" onclick="login()">Login</button>
+<button class="btn" onclick="guest()">Guest</button>
 </div>
 
 <div id="app" style="display:none">
 
-  <div class="card">
-    <div id="userInfo"></div>
-  </div>
+<div class="card">
+<b id="userInfo"></b>
+</div>
 
-  <div class="card">
-    <h2>Konflik Jadwal</h2>
-    <div id="konflik"></div>
-  </div>
+<div class="card">
+<h3>Review Request</h3>
+<div id="request"></div>
+</div>
+
+<div class="card">
+<h3>Warning</h3>
+<div id="warning"></div>
+</div>
+
+<div class="card">
+<button class="btn" onclick="generate()">Generate Jadwal</button>
+<div id="jadwal"></div>
+</div>
 
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxSndXWAHON5S6dMlFKy9EenhzRVbmToFC-NwqtV-mNVaytydPWnlaKOywMgqJodloZ/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxASU2M0LmtGthDODnrPZVH9EypHG41uhpZPtfWSItpN_-SXZBgIbuB_tx2AIRSP0AN3Q/exec";
 
-let role = "";
-let currentUser = "";
+let role="";
+let currentUser="";
 
-// ================= LOGIN =================
-function login() {
-  fetch(GAS_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "login",
-      username: username.value,
-      password: password.value
-    })
-  })
-  .then(res => res.json())
-  .then(res => {
-    if (res.role === "admin") {
-      role = "admin";
-      currentUser = res.name;
-      showApp();
-    } else {
-      alert("Login gagal");
-    }
-  });
+// LOGIN
+function login(){
+fetch(GAS_URL,{
+method:"POST",
+body:JSON.stringify({
+action:"login",
+username:username.value,
+password:password.value
+})
+})
+.then(r=>r.json())
+.then(res=>{
+if(res.role==="admin"){
+role="admin";
+currentUser=res.name;
+showApp();
+}else alert("Login gagal");
+});
 }
 
-function guest() {
-  role = "guest";
-  currentUser = "Guest";
-  showApp();
+function guest(){
+role="guest";
+currentUser="Guest";
+showApp();
 }
 
-function showApp() {
-  loginPage.style.display = "none";
-  app.style.display = "block";
+function showApp(){
+loginPage.style.display="none";
+app.style.display="block";
+userInfo.innerText="Login: "+currentUser;
 
-  document.getElementById("userInfo").innerText =
-    "Login sebagai: " + currentUser;
-
-  loadKonflik();
+loadRequest();
+loadWarning();
 }
 
-// ================= LOAD KONFLIK =================
-function loadKonflik() {
-  fetch(GAS_URL + "?action=konflik")
-    .then(res => res.json())
-    .then(renderKonflik);
+// REQUEST
+function loadRequest(){
+fetch(GAS_URL+"?action=requests")
+.then(r=>r.json())
+.then(renderRequest);
 }
 
-// ================= RENDER =================
-function renderKonflik(data) {
-  let div = document.getElementById("konflik");
-  div.innerHTML = "";
+function renderRequest(data){
+let div=document.getElementById("request");
+div.innerHTML="";
 
-  for (let tgl in data) {
-    let k = data[tgl];
+data.forEach(r=>{
+let html=`
+<div>
+<b>${r.nama}</b> - ${r.tanggal} - ${r.jenis} (${r.shift_awal}→${r.shift_minta})<br>
+Status: ${r.status}<br>
+`;
 
-    let html = `<h3>${tgl}</h3>`;
-
-    k.kandidat.forEach(c => {
-      html += `
-        <label>
-          <input type="radio" name="${tgl}" value="${c.nama}">
-          ${c.nama} (${c.jumlah} request)
-        </label><br>
-      `;
-    });
-
-    if (role === "admin") {
-      html += `<button class="btn" onclick="pilih('${tgl}')">Pilih</button>`;
-    } else {
-      html += `<p><i>Guest hanya melihat</i></p>`;
-    }
-
-    div.innerHTML += html;
-  }
+if(role==="admin" && r.status==="PENDING"){
+html+=`
+<button onclick="approve(${r.row})">Approve</button>
+<button onclick="reject(${r.row})">Reject</button>
+`;
 }
 
-// ================= PILIH =================
-function pilih(tanggal) {
-  let radios = document.getElementsByName(tanggal);
-  let dipilih;
-
-  radios.forEach(r => {
-    if (r.checked) dipilih = r.value;
-  });
-
-  if (!dipilih) {
-    alert("Pilih dulu");
-    return;
-  }
-
-  let ditolak = Array.from(radios)
-    .map(r => r.value)
-    .filter(n => n !== dipilih)[0];
-
-  fetch(GAS_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "pilih",
-      tanggal: tanggal,
-      dipilih: dipilih,
-      ditolak: ditolak,
-      admin: currentUser
-    })
-  })
-  .then(res => res.json())
-  .then(() => {
-    alert("Keputusan disimpan");
-    loadRekomendasi(ditolak);
-  });
+html+=`</div><hr>`;
+div.innerHTML+=html;
+});
 }
 
-// ================= REKOMENDASI =================
-function loadRekomendasi(nama) {
-  fetch(GAS_URL + "?action=rekomendasi&nama=" + nama)
-    .then(res => res.json())
-    .then(res => {
-      let html = `<h3>Rekomendasi untuk ${nama}</h3>`;
-      res.forEach(t => html += `<p>${t}</p>`);
+function approve(row){
+fetch(GAS_URL,{
+method:"POST",
+body:JSON.stringify({action:"approve",row:row})
+}).then(()=>loadRequest());
+}
 
-      document.getElementById("konflik").innerHTML += html;
-    });
+function reject(row){
+fetch(GAS_URL,{
+method:"POST",
+body:JSON.stringify({action:"reject",row:row})
+}).then(()=>loadRequest());
+}
+
+// WARNING
+function loadWarning(){
+fetch(GAS_URL+"?action=warning")
+.then(r=>r.json())
+.then(res=>{
+let div=document.getElementById("warning");
+div.innerHTML="";
+res.forEach(w=>{
+div.innerHTML+=`<p style="color:red">${w.nama} ${w.tgl} : ${w.issue}</p>`;
+});
+});
+}
+
+// GENERATE
+function generate(){
+fetch(GAS_URL+"?action=generate")
+.then(r=>r.json())
+.then(renderJadwal);
+}
+
+function renderJadwal(data){
+let div=document.getElementById("jadwal");
+div.innerHTML="";
+
+for(let t in data){
+let html=`<b>${t}</b><br>`;
+for(let s in data[t]){
+html+=`<span class="shift-${s}">${s}: ${data[t][s]}</span><br>`;
+}
+div.innerHTML+=html+"<br>";
+}
 }
 </script>
 
