@@ -3,267 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aster Atas | Smart Roster</title>
+    <title>Aster Atas | Hospital Care System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
+            --medical-blue: #0ea5e9;
+            --medical-light: #f0f9ff;
+            --text-dark: #334155;
+            --text-gray: #64748b;
+            --success: #10b981;
+            --bg-body: #fdfdfd;
         }
 
         body { 
-            background-color: var(--bg); 
-            color: var(--text-main); 
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            transition: all 0.3s ease;
+            background-color: var(--bg-body); 
+            color: var(--text-dark); 
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.01em;
         }
 
-        /* LOGIN PAGE MODERN */
+        /* LOGIN PAGE: COMFORT VIBE */
         #login-page { 
             height: 100vh; 
             display: flex; 
             align-items: center; 
             justify-content: center;
-            background: linear-gradient(135deg, #f5f7ff 0%, #ffffff 100%);
+            background: radial-gradient(circle at top right, #f0f9ff 0%, #ffffff 100%);
         }
 
         .login-card { 
-            background: var(--card); 
-            border: 1px solid var(--border); 
-            padding: 40px; 
-            border-radius: 24px; 
+            background: white; 
+            padding: 48px; 
+            border-radius: 32px; 
             width: 100%; 
-            max-width: 400px; 
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02);
+            max-width: 420px; 
+            box-shadow: 0 10px 40px -10px rgba(14, 165, 233, 0.1);
+            border: 1px solid #f1f5f9;
             text-align: center;
         }
 
-        .btn-primary-custom { 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 12px; 
-            border-radius: 12px; 
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
-        .btn-primary-custom:hover { background: var(--primary-hover); color: white; transform: translateY(-1px); }
-        
-        .btn-guest {
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: 500;
-            margin-top: 10px;
-        }
-
-        /* DASHBOARD LAYOUT */
-        .sidebar {
-            background: var(--card);
-            border-right: 1px solid var(--border);
-            height: 100vh;
-            position: fixed;
-            width: 260px;
-            padding: 24px;
-        }
-
-        .main-content { margin-left: 260px; padding: 40px; }
-
-        .nav-pill-custom {
-            color: var(--text-muted);
-            padding: 12px 16px;
-            border-radius: 12px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            font-weight: 500;
-            transition: 0.2s;
-        }
-
-        .nav-pill-custom.active {
-            background: #eef2ff;
-            color: var(--primary);
-        }
-
-        .nav-pill-custom:hover:not(.active) { background: #f1f5f9; color: var(--text-main); }
-
-        .card-stats {
-            background: var(--card);
-            border: 1px solid var(--border);
+        .brand-logo {
+            width: 64px; height: 64px;
+            background: var(--medical-blue);
             border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 8px 16px -4px rgba(14, 165, 233, 0.3);
         }
 
-        .form-control-custom {
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            padding: 10px 15px;
+        .input-med {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 16px;
+            transition: 0.3s;
+        }
+
+        .input-med:focus {
+            background: white;
+            border-color: var(--medical-blue);
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+            outline: none;
+        }
+
+        .btn-main {
+            background: var(--medical-blue);
+            color: white; border: none;
+            padding: 14px; border-radius: 14px;
+            font-weight: 600; width: 100%;
+            margin-top: 10px; transition: 0.3s;
+        }
+
+        .btn-main:hover { background: #0284c7; transform: translateY(-1px); }
+
+        .btn-guest {
+            background: transparent; color: var(--medical-blue);
+            border: 2px solid var(--medical-light);
+            padding: 12px; border-radius: 14px;
+            font-weight: 600; width: 100%; margin-top: 12px;
+        }
+
+        /* DASHBOARD: CLEAN & ORGANIZED */
+        .sidebar {
+            width: 280px; height: 100vh;
+            position: fixed; background: white;
+            border-right: 1px solid #f1f5f9;
+            padding: 32px 24px;
+        }
+
+        .nav-item-med {
+            display: flex; align-items: center;
+            padding: 14px 18px; border-radius: 16px;
+            color: var(--text-gray); text-decoration: none;
+            margin-bottom: 8px; font-weight: 500; transition: 0.2s;
+        }
+
+        .nav-item-med.active {
+            background: var(--medical-light);
+            color: var(--medical-blue);
+        }
+
+        .main-content { margin-left: 280px; padding: 48px; }
+
+        .card-panel {
+            background: white; border-radius: 24px;
+            border: 1px solid #f1f5f9; padding: 32px;
+            box-shadow: 0 4px 20px -2px rgba(0,0,0,0.02);
         }
 
         .hidden { display: none !important; }
-
-        @media (max-width: 768px) {
-            .sidebar { display: none; }
-            .main-content { margin-left: 0; padding: 20px; }
-        }
     </style>
 </head>
 <body>
 
 <div id="login-page">
     <div class="login-card">
-        <div class="mb-4">
-            <div style="width: 60px; height: 60px; background: #eef2ff; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            </div>
-            <h4 class="fw-bold mb-1">Aster Atas</h4>
-            <p class="text-muted small">Nurse Scheduling System</p>
+        <div class="brand-logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
         </div>
+        <h3 class="fw-bold mb-1">Aster Atas</h3>
+        <p class="text-gray mb-4">Smart Hospital Scheduling</p>
         
         <div id="login-form">
-            <input type="password" id="passInput" class="form-control form-control-custom mb-3 text-center" placeholder="Admin Password">
-            <button onclick="checkLogin()" id="btnLogin" class="btn btn-primary-custom w-100 mb-2">Sign In as Admin</button>
-            <div class="text-muted small mb-2">or</div>
-            <button onclick="enterAsGuest()" class="btn btn-guest w-100">View Schedules as Guest</button>
+            <input type="password" id="passInput" class="form-control input-med mb-3 text-center" placeholder="Admin Password">
+            <button onclick="checkLogin()" id="btnLogin" class="btn-main">Masuk Sebagai Admin</button>
+            <button onclick="enterAsGuest()" class="btn-guest">Lihat Jadwal (Tamu)</button>
         </div>
     </div>
 </div>
 
 <div id="main-dashboard" class="hidden">
-    <div class="sidebar no-print">
-        <h5 class="fw-bold mb-4 px-2">Aster Atas</h5>
+    <div class="sidebar">
+        <div class="d-flex align-items-center mb-5 px-2">
+            <div style="width:32px; height:32px; background:var(--medical-blue); border-radius:8px; display:flex; align-items:center; justify-content:center; margin-right:12px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+            </div>
+            <h5 class="fw-bold m-0">Aster Atas</h5>
+        </div>
+        
         <nav>
-            <a href="#" class="nav-pill-custom active" onclick="showTab('view-roster', event)">
-                📅 Jadwal Perawat
-            </a>
-            <div id="admin-menus" class="hidden">
-                <hr>
-                <a href="#" class="nav-pill-custom" onclick="showTab('generator', event)">⚙️ Generator</a>
-                <a href="#" class="nav-pill-custom" onclick="showTab('requests', event)">📝 Permintaan</a>
-                <a href="#" class="nav-pill-custom" onclick="showTab('antipairing', event)">🚫 Anti Pairing</a>
-                <a href="#" class="nav-pill-custom" onclick="showTab('settings', event)">🛠️ Config</a>
+            <a href="#" class="nav-item-med active" onclick="showTab('roster', event)">📅 Jadwal Aktif</a>
+            <div id="admin-only" class="hidden">
+                <a href="#" class="nav-item-med" onclick="showTab('generator', event)">🚀 Generate Roster</a>
+                <a href="#" class="nav-item-med" onclick="showTab('requests', event)">📝 Permintaan Staf</a>
+                <a href="#" class="nav-item-med" onclick="showTab('anti', event)">🚫 Anti Pairing</a>
             </div>
         </nav>
-        <div style="position: absolute; bottom: 24px; width: 212px;">
-            <button onclick="location.reload()" class="btn btn-light w-100 text-danger border rounded-3">Sign Out</button>
+
+        <div style="position:absolute; bottom:32px; width:232px;">
+            <button onclick="location.reload()" class="btn btn-light w-100 py-3 rounded-4 fw-600 text-danger">Keluar</button>
         </div>
     </div>
 
     <div class="main-content">
-        <div id="tab-view-roster" class="tab-content">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold m-0">Jadwal Aktif</h4>
-                <div class="btn-group">
-                    <button class="btn btn-outline-secondary btn-sm active">Bulan Ini</button>
-                    <button class="btn btn-outline-secondary btn-sm">Bulan Depan</button>
+        <div id="tab-roster" class="tab-content">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <h2 class="fw-bold">Jadwal Perawat</h2>
+                    <p class="text-gray m-0">Menampilkan jadwal shift yang sedang berjalan.</p>
+                </div>
+                <div class="bg-white p-1 rounded-3 border">
+                    <button class="btn btn-sm btn-primary rounded-2 px-3">Bulan Ini</button>
+                    <button class="btn btn-sm text-gray rounded-2 px-3">Bulan Depan</button>
                 </div>
             </div>
-            <div class="card-stats">
-                <p class="text-muted">Memuat jadwal terbaru...</p>
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead><tr><th>Tanggal</th><th>Shift Pagi</th><th>Sore</th><th>Malam</th></tr></thead>
-                        <tbody id="roster-table-body">
-                            </tbody>
-                    </table>
-                </div>
+            
+            <div class="card-panel">
+                <table class="table">
+                    <thead><tr class="text-gray"><th>Tanggal</th><th>Pagi</th><th>Sore</th><th>Malam</th></tr></thead>
+                    <tbody id="roster-list">
+                        <tr><td colspan="4" class="text-center py-5 text-gray">Memproses data dari server...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <div id="tab-generator" class="tab-content hidden">
-            <h4 class="fw-bold mb-4">Roster Generator</h4>
-            <div class="card-stats">
-                <h6>Konfigurasi Build</h6>
-                <button onclick="runBuild()" id="btnBuild" class="btn btn-primary-custom px-4 mt-3">Mulai Susun Jadwal</button>
-                <div id="console" class="mt-4 p-3 rounded bg-light border small text-muted" style="font-family: monospace;">
-                    > System ready...
-                </div>
+        <div id="tab-generator" class="tab-content hidden text-center py-5">
+            <div class="card-panel mx-auto" style="max-width: 600px;">
+                <h4 class="fw-bold mb-3">Siapkan Jadwal Baru</h4>
+                <p class="text-gray mb-4">Sistem akan menyusun rotasi shift secara otomatis dengan mempertimbangkan MOD RS (Maria) dan batasan staf lainnya.</p>
+                <button onclick="runBuild()" id="btnBuild" class="btn-main px-5">Susun Jadwal Sekarang</button>
+                <div id="build-status" class="mt-4 small text-gray"></div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // URL Web App GAS Anda
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwMuhPcfSLVAWtTKH90JWEmhHOlVJEQEVx3rwuVI0Uf3SNYXFFSImHiRlapEN_HpZbFag/exec";
     let isAdmin = false;
-    let currentPw = "";
 
     function checkLogin() {
         const pw = document.getElementById('passInput').value;
-        const btn = document.getElementById('btnLogin');
-        btn.disabled = true;
-        btn.innerText = "Authenticating...";
-
-        // Mencoba verifikasi ke GAS
+        if(!pw) return;
+        
         fetch(`${GAS_URL}?action=login&pw=${pw}`)
             .then(res => res.json())
             .then(data => {
                 if(data.status === "success") {
                     isAdmin = true;
-                    currentPw = pw;
-                    document.getElementById('admin-menus').classList.remove('hidden');
-                    enterDashboard();
-                } else {
-                    alert("Password Admin Salah!");
-                    btn.disabled = false;
-                    btn.innerText = "Sign In as Admin";
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Gagal terhubung ke server. Pastikan URL GAS benar.");
-                btn.disabled = false;
+                    document.getElementById('admin-only').classList.remove('hidden');
+                    openApp();
+                } else { alert("Akses Ditolak: Password Salah"); }
             });
     }
 
     function enterAsGuest() {
         isAdmin = false;
-        document.getElementById('admin-menus').classList.add('hidden');
-        enterDashboard();
+        document.getElementById('admin-only').classList.add('hidden');
+        openApp();
     }
 
-    function enterDashboard() {
+    function openApp() {
         document.getElementById('login-page').classList.add('hidden');
         document.getElementById('main-dashboard').classList.remove('hidden');
-        loadActiveRoster();
     }
 
-    function showTab(tabId, event) {
-        event.preventDefault();
+    function showTab(name, e) {
+        e.preventDefault();
         document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-        document.querySelectorAll('.nav-pill-custom').forEach(n => n.classList.remove('active'));
-        
-        document.getElementById('tab-' + tabId).classList.remove('hidden');
-        event.target.classList.add('active');
-    }
-
-    function loadActiveRoster() {
-        // Logika untuk menarik jadwal bulan ini dari GAS
-        console.log("Loading roster data...");
-    }
-
-    function runBuild() {
-        if(!isAdmin) return;
-        const con = document.getElementById('console');
-        con.innerHTML = "> Fetching constraints...<br>> Processing Maria (MOD) Schedule...";
-        
-        fetch(`${GAS_URL}?action=run_build&pw=${currentPw}`)
-            .then(res => res.json())
-            .then(data => {
-                con.innerHTML += `<br>> <span style="color:green">SUCCESS: ${data.message}</span>`;
-            });
+        document.querySelectorAll('.nav-item-med').forEach(n => n.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.remove('hidden');
+        e.currentTarget.classList.add('active');
     }
 </script>
 </body>
