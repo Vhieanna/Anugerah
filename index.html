@@ -5,41 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEDI SIFT System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        :root { --med-blue: #007bff; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #f8fafc; overflow: hidden; font-family: sans-serif; }
+        :root { --med-blue: #007bff; --bg-light: #f8fafc; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg-light); overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
-        /* SPLASH SCREEN PROFESIONAL (FADE EFFECT) */
+        /* SPLASH SCREEN FACEBOOK STYLE */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #ffffff; display: flex; flex-direction: column;
             align-items: center; justify-content: center; z-index: 9999;
-            /* Efek Facebook: Fade Out saat selesai */
-            transition: opacity 1s ease-out, visibility 1s;
-            opacity: 1; visibility: visible;
+            transition: opacity 0.8s ease-out, visibility 0.8s;
         }
         #splash-screen.fade-away { opacity: 0; visibility: hidden; }
+        .splash-logo { width: 150px; height: auto; margin-bottom: 10px; animation: zoomIn 1s ease-out; }
+        .splash-tagline { font-size: 14px; color: #8899a6; font-weight: 500; letter-spacing: 0.5px; opacity: 0; animation: fadeInText 1s ease-in forwards; animation-delay: 0.5s; }
 
-        /* Logo Splash Dikecilkan */
-        .splash-logo { width: 180px; height: auto; margin-bottom: 20px; animation: fadeIn 1.5s ease-in; }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeInText { from { opacity: 0; } to { opacity: 1; } }
+
+        /* AUTH & CONTENT CONTAINER */
+        .main-wrapper { display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; }
         
-        /* Tagline Splash */
-        .splash-tagline { font-size: 16px; color: #6c757d; font-weight: 500; letter-spacing: 0.5px; animation: fadeIn 2s ease-in; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* LOGIN PAGE */
-        .auth-container { display: flex; align-items: center; justify-content: center; height: 100vh; }
+        /* LOGIN CARD */
         .auth-card { 
-            background: white; padding: 60px 40px; border-radius: 40px; 
+            background: white; padding: 50px 40px; border-radius: 40px; 
             width: 100%; max-width: 420px; text-align: center;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.07); border: 1px solid #f1f5f9;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;
         }
-        .login-logo { width: 300px; height: auto; margin-bottom: 40px; display: block; margin-left: auto; margin-right: auto; }
-        .form-control { border-radius: 15px; padding: 14px; border: 1.5px solid #e2e8f0; margin-bottom: 15px; text-align: center; font-size: 16px; }
-        .btn-main { background: var(--med-blue); color: white; border: none; padding: 16px; border-radius: 15px; width: 100%; font-weight: 700; transition: 0.3s; margin-top: 10px; }
+        .login-logo { width: 280px; height: auto; margin-bottom: 30px; display: block; margin-left: auto; margin-right: auto; }
+        .form-control { border-radius: 15px; padding: 14px; border: 1.5px solid #e2e8f0; margin-bottom: 15px; text-align: center; }
+        .btn-main { background: var(--med-blue); color: white; border: none; padding: 16px; border-radius: 15px; width: 100%; font-weight: 700; transition: 0.3s; }
         .btn-guest { background: #f0f9ff; color: var(--med-blue); border: none; padding: 14px; border-radius: 15px; width: 100%; margin-top: 12px; font-weight: 600; }
+
+        /* DASHBOARD MENU SYSTEM */
+        .dash-container { background: white; width: 95%; max-width: 1000px; height: 85vh; border-radius: 35px; overflow: hidden; display: flex; box-shadow: 0 30px 80px rgba(0,0,0,0.08); }
+        .sidebar { width: 260px; background: #fcfdfe; border-right: 1px solid #f1f5f9; padding: 30px 20px; display: flex; flex-direction: column; }
+        .content-area { flex: 1; padding: 40px; overflow-y: auto; background: #fff; }
         
+        .menu-item { 
+            padding: 12px 18px; border-radius: 12px; cursor: pointer; color: #64748b; 
+            font-weight: 600; margin-bottom: 8px; transition: 0.2s; display: flex; align-items: center;
+        }
+        .menu-item i { margin-right: 12px; font-size: 1.2rem; }
+        .menu-item:hover { background: #f1f5f9; color: var(--med-blue); }
+        .menu-item.active { background: #e0f2fe; color: var(--med-blue); }
+
         .hidden { display: none !important; }
         #loading-text { color: var(--med-blue); font-size: 0.9rem; margin-top: 20px; font-weight: 600; }
     </style>
@@ -49,109 +60,103 @@
 <div id="splash-screen">
     <img src="logo splash.png" alt="Splash Logo" class="splash-logo">
     <p class="splash-tagline">Your Health, Our Priority</p>
-    <div class="spinner-border text-primary mt-4" role="status"></div>
+    <div class="spinner-border text-primary mt-4" style="width: 1.5rem; height: 1.5rem; border-width: 0.2em;" role="status"></div>
 </div>
 
-<div id="app-content" class="hidden">
-    <div class="auth-container">
-        <div id="login-ui" class="auth-card">
-            <img src="Logo Medi.png" alt="Medi Sift Logo" class="login-logo">
-            
-            <div id="input-area">
-                <input type="text" id="userInput" class="form-control" placeholder="Username" autocomplete="off">
-                <input type="password" id="passInput" class="form-control" placeholder="Password">
-                
-                <button onclick="prosesData('login')" class="btn btn-main shadow-sm">Masuk Admin</button>
-                <button onclick="prosesData('guest')" class="btn btn-guest">Lihat Jadwal (Tamu)</button>
-            </div>
+<div class="main-wrapper">
+    <div id="login-ui" class="auth-card">
+        <img src="Logo Medi.png" alt="Medi Sift Logo" class="login-logo">
+        <div id="input-area">
+            <input type="text" id="userInput" class="form-control" placeholder="Username" autocomplete="off">
+            <input type="password" id="passInput" class="form-control" placeholder="Password">
+            <button onclick="proses('login')" class="btn btn-main shadow-sm">Masuk Admin</button>
+            <button onclick="proses('guest')" class="btn btn-guest">Lihat Jadwal (Tamu)</button>
+        </div>
+        <div id="loading-text" class="hidden">
+            <div class="spinner-grow spinner-grow-sm me-2"></div> Menghubungkan...
+        </div>
+    </div>
 
-            <div id="loading-text" class="hidden">
-                <div class="spinner-grow spinner-grow-sm me-2"></div> Menghubungkan...
+    <div id="dash-ui" class="dash-container hidden">
+        <div class="sidebar">
+            <div class="mb-4 px-2">
+                <h5 class="fw-bold text-primary mb-0">MEDI SIFT</h5>
+                <small class="text-muted" id="user-role"></small>
+            </div>
+            <div class="menu-item active" onclick="switchTab('jadwal')"><i class="bi bi-calendar3"></i> Jadwal MOD</div>
+            <div class="menu-item" onclick="switchTab('staff')"><i class="bi bi-people"></i> Daftar Staff</div>
+            <div class="menu-item" onclick="switchTab('info')"><i class="bi bi-info-circle"></i> Info RS</div>
+            <div class="mt-auto">
+                <div class="menu-item text-danger" onclick="location.reload()"><i class="bi bi-box-arrow-left"></i> Keluar</div>
             </div>
         </div>
-
-        <div id="dash-ui" class="hidden auth-card shadow-lg" style="max-width: 950px; width: 95%;">
-            <h3 id="user-greet" class="text-primary fw-bold mb-4"></h3>
-            <div id="table-output" class="table-responsive text-start small"></div>
-            <button onclick="location.reload()" class="btn btn-outline-danger mt-4 px-5 rounded-pill">Keluar</button>
+        <div class="content-area">
+            <h3 id="greet" class="fw-bold mb-4"></h3>
+            <div id="main-content-render">
+                </div>
         </div>
     </div>
 </div>
 
 <script>
-    // URL API yang sudah kita verifikasi aktif
     const API_URL = "https://script.google.com/macros/s/AKfycbyZxSlkwBzm06xCmKxm7xVckSxoTKgyRpY-5moj5nLWRvkgut_vFXGuQeHaperOvLNGKw/exec";
 
-    // Splash Screen logic (Facebook style fade)
-    window.addEventListener('load', () => {
+    // Splash Effect
+    window.onload = () => {
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
-            // Tambahkan class untuk Fade Out
             splash.classList.add('fade-away');
-            
-            // Tampilkan konten utama setelah Fade Out selesai
-            setTimeout(() => {
-                document.getElementById('app-content').classList.remove('hidden');
-                document.body.style.overflow = 'auto';
-            }, 1000); // Sinkron dengan transition CSS
-        }, 3000); // Tampil selama 3 detik
-    });
+            document.body.style.overflow = 'auto';
+        }, 3000);
+    };
 
-    function prosesData(tipe) {
+    function proses(tipe) {
         const u = document.getElementById('userInput').value;
         const p = document.getElementById('passInput').value;
-        const load = document.getElementById('loading-text');
-        const area = document.getElementById('input-area');
+        document.getElementById('loading-text').classList.remove('hidden');
+        document.getElementById('input-area').classList.add('hidden');
 
-        if(tipe === 'login' && (!u || !p)) return alert("Masukkan Username & Password!");
-
-        load.classList.remove('hidden');
-        area.classList.add('hidden');
-
-        // Menggunakan teknik JSONP untuk menembus CORS browser
-        const callbackName = 'google_jsonp_' + Math.floor(Math.random() * 100000);
-        window[callbackName] = function(res) {
-            load.classList.add('hidden');
+        const cb = 'jsonp_' + Date.now();
+        window[cb] = (res) => {
             if(res.status === "success") {
-                renderDashboard(res, tipe);
+                renderDash(res, tipe);
             } else {
-                area.classList.remove('hidden');
-                alert("Gagal: " + res.message);
+                alert(res.message);
+                document.getElementById('loading-text').classList.add('hidden');
+                document.getElementById('input-area').classList.remove('hidden');
             }
-            delete window[callbackName];
-            const s = document.getElementById('jsonp-script');
-            if(s) s.remove();
         };
 
         const script = document.createElement('script');
-        script.id = 'jsonp-script';
-        // URL harus bersih dari /u/6/ agar tidak terblokir
-        script.src = `${API_URL}?action=${tipe === 'login' ? 'login' : 'get_roster'}&user=${encodeURIComponent(u)}&pw=${encodeURIComponent(p)}&callback=${callbackName}`;
-        
-        // PENTING: Tangkap error jika script gagal dimuat (Blocked oleh browser)
-        script.onerror = () => {
-            load.classList.add('hidden');
-            area.classList.remove('hidden');
-            alert("Koneksi ditolak oleh browser. Pastikan Google Web App sudah di-Deploy sebagai 'Anyone'.");
-        };
+        script.src = `${API_URL}?action=${tipe==='login'?'login':'get_roster'}&user=${encodeURIComponent(u)}&pw=${encodeURIComponent(p)}&callback=${cb}`;
         document.body.appendChild(script);
     }
 
-    function renderDashboard(res, tipe) {
+    function renderDash(res, tipe) {
         document.getElementById('login-ui').classList.add('hidden');
         document.getElementById('dash-ui').classList.remove('hidden');
-        document.getElementById('user-greet').innerText = "Halo, " + (tipe === 'login' ? res.name : "Tamu");
+        document.getElementById('greet').innerText = "Halo, " + (res.name || "Tamu");
+        document.getElementById('user-role').innerText = tipe === 'login' ? "Administrator" : "Guest Access";
         
         if(res.data) {
-            let table = '<table class="table table-hover table-bordered border-light table-striped shadow-sm">';
+            let html = '<table class="table table-hover border"><tbody>';
             res.data.forEach((row, idx) => {
-                table += `<tr class="${idx === 0 ? 'table-primary' : ''}">`;
-                row.forEach(cell => {
-                    table += `<td>${cell}</td>`;
-                });
-                table += '</tr>';
+                html += `<tr class="${idx === 0 ? 'table-light fw-bold' : ''}">`;
+                row.forEach(cell => html += `<td>${cell}</td>`);
+                html += '</tr>';
             });
-            document.getElementById('table-output').innerHTML = table + '</table>';
+            document.getElementById('main-content-render').innerHTML = html + '</tbody></table>';
+        }
+    }
+
+    function switchTab(tab) {
+        // Logika pindah tab bisa dikembangkan di sini
+        const items = document.querySelectorAll('.menu-item');
+        items.forEach(i => i.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        
+        if(tab !== 'jadwal') {
+            document.getElementById('main-content-render').innerHTML = `<div class="text-center py-5 text-muted"><i class="bi bi-cone-striped fs-1"></i><br>Fitur ${tab} sedang dalam pengembangan.</div>`;
         }
     }
 </script>
