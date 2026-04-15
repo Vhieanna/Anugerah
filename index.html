@@ -1,89 +1,187 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aster Atas | Hospital System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --med-blue: #0ea5e9; --med-light: #f0f9ff; }
-        body { background: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card-med { background: white; padding: 40px; border-radius: 30px; width: 100%; max-width: 400px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); text-align: center; border: 1px solid #f1f5f9; }
-        .btn-main { background: var(--med-blue); color: white; border: none; padding: 14px; border-radius: 14px; width: 100%; font-weight: 700; margin-top: 15px; transition: 0.3s; }
-        .btn-guest { background: transparent; color: var(--med-blue); border: 2px solid var(--med-light); padding: 12px; border-radius: 14px; width: 100%; margin-top: 10px; font-weight: 600; }
-        .hidden { display: none !important; }
-        .status-msg { font-size: 0.85rem; margin-top: 10px; color: #64748b; }
-    </style>
+  <base target="_top">
+  <style>
+    body {
+      font-family: Arial;
+      background: #eef7fb;
+      margin: 0;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .btn {
+      background: linear-gradient(to right, #2bb3c0, #6dd5ed);
+      border: none;
+      padding: 10px 15px;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    input {
+      padding: 8px;
+      margin: 5px 0;
+      width: 200px;
+    }
+
+    h2 {
+      color: #2bb3c0;
+    }
+  </style>
 </head>
+
 <body>
 
-<div id="login-ui" class="card-med">
-    <div style="background: var(--med-blue); width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-    </div>
-    <h4 class="fw-bold mb-1">Aster Atas</h4>
-    <p class="text-muted small mb-4">Smart Hospital Scheduling</p>
-    
-    <input type="password" id="adminPw" class="form-control text-center py-3 border-0 bg-light rounded-4 mb-2" placeholder="Password Admin">
-    
-    <button onclick="requestData('admin')" id="btnAdmin" class="btn-main">Masuk Sebagai Admin</button>
-    <button onclick="enterAsGuest()" class="btn-guest">Lihat Jadwal (Tamu)</button>
-    <div id="loader" class="status-msg hidden">Menghubungkan ke server...</div>
-</div>
+<div class="container">
 
-<div id="dashboard" class="hidden text-center p-4">
-    <div class="card-med" style="max-width: 500px;">
-        <h3 id="user-title" class="fw-bold text-primary mb-3"></h3>
-        <p class="text-muted">Akses berhasil. Menyiapkan tampilan jadwal...</p>
-        <hr class="my-4 opacity-50">
-        <button onclick="location.reload()" class="btn btn-outline-danger w-100 rounded-3">Keluar</button>
+  <!-- LOGIN -->
+  <div id="loginPage" class="card">
+    <h2>MediSift</h2>
+    <input id="username" placeholder="Username"><br>
+    <input id="password" type="password" placeholder="Password"><br>
+    <button class="btn" onclick="login()">Login</button>
+    <button class="btn" onclick="guest()">Guest</button>
+  </div>
+
+  <!-- APP -->
+  <div id="app" style="display:none">
+
+    <div class="card">
+      <h2>Jadwal</h2>
+      <button class="btn" onclick="loadJadwal()">Generate</button>
+      <div id="jadwal"></div>
     </div>
+
+    <div class="card">
+      <h2>Konflik</h2>
+      <div id="konflik"></div>
+    </div>
+
+  </div>
+
 </div>
 
 <script>
-    // GANTI URL DI BAWAH INI DENGAN URL DEPLOY TERBARU ANDA
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLzllEFFxvB4DkPSWgvd6yW0tmrXwN2-Bn5S8S6R_a3-wHw-5bb_ViQcP3RYbkzNxzLw/exec";
+let role = "";
 
-    function requestData(mode) {
-        const pw = document.getElementById('adminPw').value;
-        const loader = document.getElementById('loader');
-        
-        if (mode === 'admin' && !pw) return alert("Silakan masukkan password!");
-        
-        loader.classList.remove('hidden');
-        
-        // TEKNIK JSONP: Memanggil script melalui tag <script> untuk menghindari blokir CORS
-        const callbackName = 'google_callback_' + Math.floor(Math.random() * 100000);
-        window[callbackName] = function(data) {
-            loader.classList.add('hidden');
-            if (data.status === "success") {
-                showDashboard(mode === 'admin' ? "Admin Aster" : "Tamu Aster");
-            } else {
-                alert(data.message);
-            }
-            // Bersihkan script tag setelah selesai
-            document.body.removeChild(document.getElementById('jsonp_tag'));
-            delete window[callbackName];
-        };
+function login() {
+  let u = document.getElementById("username").value;
+  let p = document.getElementById("password").value;
 
-        const finalUrl = SCRIPT_URL + "?action=" + (mode === 'admin' ? "login&pw=" + encodeURIComponent(pw) : "get_roster") + "&callback=" + callbackName;
-        
-        const scriptTag = document.createElement('script');
-        scriptTag.id = 'jsonp_tag';
-        scriptTag.src = finalUrl;
-        document.body.appendChild(scriptTag);
+  google.script.run.withSuccessHandler(res => {
+    if (res.role === "admin") {
+      role = "admin";
+      showApp();
+    } else {
+      alert("Login gagal");
+    }
+  }).login(u, p);
+}
+
+function guest() {
+  role = "guest";
+  showApp();
+}
+
+function showApp() {
+  document.getElementById("loginPage").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  loadKonflik();
+}
+
+function loadJadwal() {
+  google.script.run.withSuccessHandler(data => {
+    let div = document.getElementById("jadwal");
+    div.innerHTML = "";
+
+    for (let tgl in data) {
+      div.innerHTML += `<p>${tgl}</p>`;
+    }
+  }).generateSchedule();
+}
+
+// ================= KONFLIK =================
+function loadKonflik() {
+  google.script.run.withSuccessHandler(renderKonflik).getKonflikDetail();
+}
+
+function renderKonflik(data) {
+  let div = document.getElementById("konflik");
+  div.innerHTML = "";
+
+  for (let tgl in data) {
+    let k = data[tgl];
+
+    let html = `<h3>${tgl}</h3>`;
+
+    k.kandidat.forEach(c => {
+      html += `
+        <label>
+          <input type="radio" name="${tgl}" value="${c.nama}">
+          ${c.nama} (${c.jumlah} request)
+        </label><br>
+      `;
+    });
+
+    if (role === "admin") {
+      html += `<button class="btn" onclick="pilih('${tgl}')">Pilih</button>`;
+    } else {
+      html += `<p><i>Mode Guest (view only)</i></p>`;
     }
 
-    function enterAsGuest() {
-        requestData('guest');
-    }
+    div.innerHTML += html;
+  }
+}
 
-    function showDashboard(name) {
-        document.getElementById('login-ui').classList.add('hidden');
-        document.getElementById('dashboard').classList.remove('hidden');
-        document.getElementById('user-title').innerText = "Selamat Datang, " + name;
-    }
+// ================= PILIH =================
+function pilih(tanggal) {
+  let radios = document.getElementsByName(tanggal);
+  let dipilih;
+
+  radios.forEach(r => {
+    if (r.checked) dipilih = r.value;
+  });
+
+  if (!dipilih) {
+    alert("Pilih salah satu dulu");
+    return;
+  }
+
+  let ditolak = Array.from(radios)
+    .map(r => r.value)
+    .filter(n => n !== dipilih)[0];
+
+  google.script.run.withSuccessHandler(() => {
+    alert("Disimpan");
+    loadRekomendasi(ditolak);
+  }).simpanKeputusan(tanggal, dipilih, ditolak);
+}
+
+// ================= REKOMENDASI =================
+function loadRekomendasi(nama) {
+  google.script.run.withSuccessHandler(res => {
+    let html = `<h3>Rekomendasi untuk ${nama}</h3>`;
+    res.forEach(t => {
+      html += `<p>${t}</p>`;
+    });
+
+    document.getElementById("konflik").innerHTML += html;
+  }).rekomendasiTanggal(nama);
+}
 </script>
+
 </body>
 </html>
