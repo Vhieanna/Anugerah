@@ -7,130 +7,234 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        :root { --med-blue: #007bff; --bg: #f8fafc; }
-        body { background: var(--bg); font-family: 'Segoe UI', sans-serif; height: 100vh; overflow: hidden; }
-        #splash { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.8s; }
+        :root { --primary-blue: #007bff; --soft-bg: #f8fafc; --sidebar-bg: #ffffff; }
+        body { background: var(--soft-bg); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+        
+        /* Splash Screen ala Facebook */
+        #splash { position: fixed; inset: 0; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: 0.8s; }
+        #splash img { width: 140px; margin-bottom: 20px; }
+        .tagline { color: #8899a6; font-size: 14px; letter-spacing: 1px; font-weight: 500; }
+
+        /* Dashboard Layout */
         .wrapper { display: flex; height: 100vh; opacity: 0; transition: 1s; }
-        .sidebar { width: 280px; background: #fff; border-right: 1px solid #e2e8f0; padding: 40px 20px; }
-        .content { flex: 1; padding: 40px; overflow-y: auto; }
-        .nav-link { padding: 12px 15px; border-radius: 12px; color: #64748b; cursor: pointer; font-weight: 600; margin-bottom: 5px; transition: 0.3s; }
-        .nav-link:hover, .nav-link.active { background: #eff6ff; color: var(--med-blue); }
-        .glass-card { background: #fff; border-radius: 25px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
+        .sidebar { width: 280px; background: var(--sidebar-bg); border-right: 1px solid #eef2f6; padding: 40px 20px; display: flex; flex-direction: column; }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        
+        .nav-item { padding: 12px 18px; border-radius: 12px; cursor: pointer; color: #64748b; margin-bottom: 8px; font-weight: 600; display: flex; align-items: center; transition: 0.3s; }
+        .nav-item:hover, .nav-item.active { background: #eff6ff; color: var(--primary-blue); }
+        
+        .glass-card { background: white; border-radius: 25px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.02); padding: 30px; }
         .hidden { display: none !important; }
+        
+        /* Table Styling for Preview */
+        .table-sm { font-size: 0.75rem; }
+        .table-info { background-color: #d1ecf1 !important; } /* Siang */
+        .table-warning { background-color: #fff3cd !important; } /* Malam */
+        .table-danger { background-color: #f8d7da !important; } /* Libur */
+
+        @media print {
+            .sidebar, .nav-item, #btn-generate-area, .no-print { display: none !important; }
+            .main-content { padding: 0; overflow: visible; }
+            .wrapper { display: block; opacity: 1 !important; }
+            .glass-card { box-shadow: none; padding: 0; }
+            body { overflow: visible; background: white; }
+        }
     </style>
 </head>
 <body>
 
 <div id="splash">
-    <img src="logo splash.png" width="150">
-    <div class="mt-2 text-muted small fw-bold">Your Health, Our Priority</div>
-    <div class="spinner-border text-primary mt-4" role="status"></div>
+    <img src="logo splash.png" onerror="this.src='https://via.placeholder.com/150?text=MEDI+SIFT'">
+    <div class="tagline">Your Health, Our Priority</div>
+    <div class="spinner-border text-primary mt-4" style="width: 1.5rem; height: 1.5rem;" role="status"></div>
 </div>
 
 <div id="app" class="wrapper">
     <div class="sidebar">
-        <img src="Logo Medi.png" width="200" class="mb-5">
-        <div class="nav-link active" onclick="tab('req')"><i class="bi bi-pencil-square me-2"></i> Permintaan</div>
-        <div class="nav-link" onclick="tab('gen')"><i class="bi bi-cpu me-2"></i> Generate</div>
-        <div class="nav-link" onclick="tab('log')"><i class="bi bi-journal-text me-2"></i> Log Keputusan</div>
-        <div class="mt-auto"><hr><div class="nav-link text-danger" onclick="location.reload()"><i class="bi bi-power me-2"></i> Keluar</div></div>
+        <img src="Logo Medi.png" width="180" class="mb-5 mx-auto" onerror="this.style.display='none'">
+        <div class="nav-item active" onclick="showTab('request', this)"><i class="bi bi-calendar-plus me-3"></i> Permintaan</div>
+        <div class="nav-item" onclick="showTab('generate', this)"><i class="bi bi-cpu me-3"></i> Pembuat Jadwal</div>
+        <div class="nav-item" onclick="showTab('log', this)"><i class="bi bi-journal-text me-3"></i> Log Keputusan</div>
+        <div class="mt-auto"><hr><div class="nav-item text-danger" onclick="location.reload()"><i class="bi bi-power me-3"></i> Keluar</div></div>
     </div>
 
-    <div class="content">
-        <div id="tab-req">
+    <div class="main-content">
+        <div id="tab-request" class="tab-content">
             <h2 class="fw-bold mb-4">Input Permintaan Staf</h2>
             <div class="glass-card mb-4">
                 <div class="row g-3">
-                    <div class="col-md-3"><label class="small fw-bold">Nama Staf</label><select id="staf" class="form-select"></select></div>
-                    <div class="col-md-3"><label class="small fw-bold">Tanggal</label><input type="date" id="tgl" class="form-control"></div>
-                    <div class="col-md-3"><label class="small fw-bold">Jenis</label>
-                        <select id="jns" class="form-select">
-                            <option value="Off">Off</option><option value="Tukar">Tukar Shift</option><option value="Cuti">Cuti</option>
+                    <div class="col-md-3">
+                        <label class="small fw-bold mb-2">Nama Staf</label>
+                        <select id="stafSelect" class="form-select rounded-3"></select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="small fw-bold mb-2">Tanggal</label>
+                        <input type="date" id="reqDate" class="form-control rounded-3">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="small fw-bold mb-2">Jenis</label>
+                        <select id="reqType" class="form-select rounded-3">
+                            <option value="Off">Permintaan Off</option>
+                            <option value="Tukar">Tukar Shift</option>
+                            <option value="Cuti">Cuti</option>
                         </select>
                     </div>
-                    <div class="col-md-3"><label class="small fw-bold">Shift</label>
-                        <select id="shf" class="form-select">
-                            <option value="P">Pagi (P)</option><option value="S">Siang (S)</option><option value="M">Malam (M)</option>
+                    <div class="col-md-3">
+                        <label class="small fw-bold mb-2">Shift</label>
+                        <select id="shiftType" class="form-select rounded-3">
+                            <option value="P">Pagi (P)</option>
+                            <option value="S">Siang (S)</option>
+                            <option value="M">Malam (M)</option>
                         </select>
                     </div>
-                    <div class="col-12 text-end mt-4"><button onclick="saveReq()" class="btn btn-primary px-5 rounded-pill fw-bold">Simpan</button></div>
+                    <div class="col-12 text-end mt-4">
+                        <button onclick="saveRequest()" id="btnSave" class="btn btn-primary px-5 rounded-pill fw-bold shadow-sm">Simpan Permintaan</button>
+                    </div>
                 </div>
             </div>
-            <div id="msg" class="hidden alert alert-warning rounded-4 border-0"></div>
+            <div id="rekomendasi-box" class="hidden alert alert-warning rounded-4 p-4 border-0 shadow-sm">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-lightbulb-fill fs-4 me-3 text-warning"></i>
+                    <h5 class="fw-bold mb-0">Rekomendasi Sistem</h5>
+                </div>
+                <p id="pesan-rekomendasi" class="mb-0 text-dark small"></p>
+            </div>
         </div>
 
-        <div id="tab-gen" class="hidden">
-            <h2 class="fw-bold mb-4">Pembuat Jadwal</h2>
-            <div class="glass-card text-center py-5">
+        <div id="tab-generate" class="tab-content hidden">
+            <h2 class="fw-bold mb-4">Generate Jadwal Otomatis</h2>
+            <div id="btn-generate-area" class="glass-card mb-5 text-center py-5">
                 <i class="bi bi-gear-wide-connected display-1 text-primary mb-4"></i>
-                <h5>Siap menyusun jadwal otomatis?</h5>
-                <div class="d-flex justify-content-center gap-2 mt-4">
-                    <select id="bln" class="form-select w-25"><option value="5">Mei</option><option value="6">Juni</option></select>
-                    <button onclick="generate()" class="btn btn-primary px-5 rounded-pill fw-bold">Generate Sekarang</button>
+                <h5>Siap menyusun jadwal untuk bulan ini?</h5>
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <select id="genBulan" class="form-select w-25 rounded-pill px-4">
+                        <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                        <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+                        <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                        <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                    </select>
+                    <button onclick="generateAction()" id="btnGen" class="btn btn-primary px-5 rounded-pill fw-bold">Generate Sekarang</button>
+                </div>
+            </div>
+
+            <div id="area-preview" class="hidden">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold"><i class="bi bi-eye me-2"></i> Pratinjau Jadwal</h5>
+                    <button onclick="window.print()" class="btn btn-dark rounded-pill shadow-sm no-print">
+                        <i class="bi bi-printer me-2"></i> Cetak PDF
+                    </button>
+                </div>
+                <div class="glass-card p-0 overflow-hidden border">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm mb-0 text-center" id="tabel-hasil"></table>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="tab-log" class="hidden">
-            <h2 class="fw-bold mb-4">Histori Keputusan</h2>
-            <div class="glass-card" id="log-tbl"></div>
+        <div id="tab-log" class="tab-content hidden">
+            <h2 class="fw-bold mb-4">Histori & Log Keputusan</h2>
+            <div class="glass-card">
+                <div id="log-table" class="table-responsive"></div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    const API = "https://script.google.com/macros/s/AKfycbxj9kN_gxn4xckoQefnAeAmkqf7VlFRc5PD1U17DxkaxRYJNb1E1c7YWaVqlYjJ6-NgqA/exec";
+    // GANTI INI DENGAN URL WEB APP ANDA
+    const API_URL = "https://script.google.com/macros/s/AKfycby-nd55zZQt6gB9RMkx66Te_qXR_zct0m0Jq73UDOV3kNfk0GMnr9mfejO9XzBA4HxdYA/exec";
 
     window.onload = () => {
-        setTimeout(() => { document.getElementById('splash').style.opacity='0'; setTimeout(()=>{ 
-            document.getElementById('splash').classList.add('hidden');
-            document.getElementById('app').style.opacity='1';
-            loadStaf();
-        }, 800); }, 3000);
+        setTimeout(() => {
+            document.getElementById('splash').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('splash').classList.add('hidden');
+                document.getElementById('app').style.opacity = '1';
+                loadInitialData();
+            }, 800);
+        }, 3000);
     };
 
-    function call(p, c) {
-        const cb = 'j_' + Date.now(); window[cb] = c;
-        const s = document.createElement('script'); s.src = `${API}?${p}&callback=${cb}`;
-        document.body.appendChild(s);
+    function callAPI(params, callback) {
+        const callbackName = 'cb_' + Date.now();
+        window[callbackName] = (res) => {
+            callback(res);
+            delete window[callbackName];
+        };
+        const script = document.createElement('script');
+        script.src = `${API_URL}?${params}&callback=${callbackName}`;
+        document.body.appendChild(script);
     }
 
-    function loadStaf() { call('action=get_staf', r => {
-        document.getElementById('staf').innerHTML = r.data.map(s => `<option value="${s}">${s}</option>`).join('');
-    });}
+    function loadInitialData() {
+        callAPI('action=get_staf', (res) => {
+            const select = document.getElementById('stafSelect');
+            select.innerHTML = res.data.map(name => `<option value="${name}">${name}</option>`).join('');
+        });
+    }
 
-    function saveReq() {
-        const p = `action=submit_request&nama=${document.getElementById('staf').value}&tanggal=${document.getElementById('tgl').value}&jenis=${document.getElementById('jns').value}&shift=${document.getElementById('shf').value}`;
-        call(p, r => {
-            if(r.status === 'conflict') {
-                document.getElementById('msg').classList.remove('hidden');
-                document.getElementById('msg').innerHTML = `<b>${r.message}</b> ${r.saran}`;
+    function saveRequest() {
+        const nama = document.getElementById('stafSelect').value;
+        const tgl = document.getElementById('reqDate').value;
+        const jenis = document.getElementById('reqType').value;
+        const shift = document.getElementById('shiftType').value;
+        const btn = document.getElementById('btnSave');
+
+        if(!tgl) return alert("Silakan pilih tanggal!");
+
+        btn.disabled = true;
+        btn.innerText = "Memproses...";
+
+        callAPI(`action=submit_request&nama=${nama}&tanggal=${tgl}&jenis=${jenis}&shift=${shift}`, (res) => {
+            btn.disabled = false;
+            btn.innerText = "Simpan Permintaan";
+            if(res.status === 'conflict') {
+                document.getElementById('rekomendasi-box').classList.remove('hidden');
+                document.getElementById('pesan-rekomendasi').innerHTML = `<b>${res.message}</b><br>${res.saran}`;
             } else {
-                alert(r.message);
-                document.getElementById('msg').classList.add('hidden');
+                alert(res.message);
+                document.getElementById('rekomendasi-box').classList.add('hidden');
             }
         });
     }
 
-    function generate() {
-        call(`action=generate&bulan=${document.getElementById('bln').value}&tahun=2026`, r => alert(r.message));
+    function generateAction() {
+        const bln = document.getElementById('genBulan').value;
+        const btn = document.getElementById('btnGen');
+        btn.disabled = true;
+        btn.innerText = "Menyusun Jadwal...";
+
+        callAPI(`action=generate&bulan=${bln}&tahun=2026`, (res) => {
+            btn.disabled = false;
+            btn.innerText = "Generate Sekarang";
+            alert(res.message);
+            loadJadwalPreview();
+        });
     }
 
-    function tab(t) {
-        ['req','gen','log'].forEach(id => document.getElementById('tab-'+id).classList.add('hidden'));
-        document.getElementById('tab-'+t).classList.remove('hidden');
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        event.currentTarget.classList.add('active');
-        if(t === 'log') loadLog();
+    function loadJadwalPreview() {
+        callAPI('action=get_log', (res) => { // Menggunakan get_log atau sesuaikan ke get_jadwal jika sudah buat fungsinya
+             // (Opsional) Refresh pratinjau di aplikasi
+        });
     }
 
-    function loadLog() {
-        call('action=get_log', r => {
-            let h = '<table class="table small"><thead><tr><th>Nama</th><th>Tgl</th><th>Status</th><th>Ket</th></tr></thead><tbody>';
-            r.data.slice(1).reverse().forEach(row => {
-                h += `<tr><td>${row[1]}</td><td>${row[2]}</td><td><span class="badge ${row[3]=='DISETUJUI'?'bg-success':'bg-danger'}">${row[3]}</span></td><td>${row[4]}</td></tr>`;
+    function showTab(target, el) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+        document.getElementById('tab-' + target).classList.remove('hidden');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+        if(target === 'log') loadLogs();
+    }
+
+    function loadLogs() {
+        callAPI('action=get_log', (res) => {
+            let html = '<table class="table table-hover small"><thead><tr><th>Waktu</th><th>Nama</th><th>Tgl</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>';
+            res.data.slice(1).reverse().forEach(row => {
+                const badge = row[3] === 'DISETUJUI' ? 'bg-success' : 'bg-danger';
+                html += `<tr><td>${new Date(row[0]).toLocaleDateString()}</td><td>${row[1]}</td><td>${row[2]}</td><td><span class="badge ${badge}">${row[3]}</span></td><td>${row[4]}</td></tr>`;
             });
-            document.getElementById('log-tbl').innerHTML = h + '</tbody></table>';
+            document.getElementById('log-table').innerHTML = html + '</tbody></table>';
         });
     }
 </script>
