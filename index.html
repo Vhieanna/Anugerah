@@ -18,12 +18,16 @@ body {
 }
 
 .btn {
-  background: #2bb3c0;
-  color: white;
+  background: linear-gradient(to right, #2bb3c0, #6dd5ed);
   border: none;
   padding: 10px;
-  margin-top: 10px;
+  color: white;
   cursor: pointer;
+  margin-top: 10px;
+}
+
+h2 {
+  color: #2bb3c0;
 }
 </style>
 </head>
@@ -32,23 +36,35 @@ body {
 
 <div class="card" id="loginPage">
   <h2>MediSift</h2>
-  <input id="username" placeholder="Username"><br>
-  <input id="password" type="password" placeholder="Password"><br>
+
+  <label>Username</label><br>
+  <input id="username"><br>
+
+  <label>Password</label><br>
+  <input id="password" type="password"><br>
+
   <button class="btn" onclick="login()">Login</button>
   <button class="btn" onclick="guest()">Guest</button>
 </div>
 
 <div id="app" style="display:none">
+
   <div class="card">
-    <h2>Konflik</h2>
+    <div id="userInfo"></div>
+  </div>
+
+  <div class="card">
+    <h2>Konflik Jadwal</h2>
     <div id="konflik"></div>
   </div>
+
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwzrRANr1vrMsvKj6N1mS_yImFsZz07LapGgw_PX-MV6hDRITNplBofKAyEjLiw_a7euA/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxSndXWAHON5S6dMlFKy9EenhzRVbmToFC-NwqtV-mNVaytydPWnlaKOywMgqJodloZ/exec";
 
 let role = "";
+let currentUser = "";
 
 // ================= LOGIN =================
 function login() {
@@ -64,6 +80,7 @@ function login() {
   .then(res => {
     if (res.role === "admin") {
       role = "admin";
+      currentUser = res.name;
       showApp();
     } else {
       alert("Login gagal");
@@ -73,16 +90,21 @@ function login() {
 
 function guest() {
   role = "guest";
+  currentUser = "Guest";
   showApp();
 }
 
 function showApp() {
   loginPage.style.display = "none";
   app.style.display = "block";
+
+  document.getElementById("userInfo").innerText =
+    "Login sebagai: " + currentUser;
+
   loadKonflik();
 }
 
-// ================= LOAD =================
+// ================= LOAD KONFLIK =================
 function loadKonflik() {
   fetch(GAS_URL + "?action=konflik")
     .then(res => res.json())
@@ -103,13 +125,15 @@ function renderKonflik(data) {
       html += `
         <label>
           <input type="radio" name="${tgl}" value="${c.nama}">
-          ${c.nama} (${c.jumlah})
+          ${c.nama} (${c.jumlah} request)
         </label><br>
       `;
     });
 
     if (role === "admin") {
-      html += `<button onclick="pilih('${tgl}')">Pilih</button>`;
+      html += `<button class="btn" onclick="pilih('${tgl}')">Pilih</button>`;
+    } else {
+      html += `<p><i>Guest hanya melihat</i></p>`;
     }
 
     div.innerHTML += html;
@@ -125,6 +149,11 @@ function pilih(tanggal) {
     if (r.checked) dipilih = r.value;
   });
 
+  if (!dipilih) {
+    alert("Pilih dulu");
+    return;
+  }
+
   let ditolak = Array.from(radios)
     .map(r => r.value)
     .filter(n => n !== dipilih)[0];
@@ -135,12 +164,13 @@ function pilih(tanggal) {
       action: "pilih",
       tanggal: tanggal,
       dipilih: dipilih,
-      ditolak: ditolak
+      ditolak: ditolak,
+      admin: currentUser
     })
   })
   .then(res => res.json())
   .then(() => {
-    alert("Disimpan");
+    alert("Keputusan disimpan");
     loadRekomendasi(ditolak);
   });
 }
