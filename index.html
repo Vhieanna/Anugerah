@@ -7,23 +7,23 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        :root { --primary: #007bff; --soft-bg: #f8fafc; }
-        body { background: var(--soft-bg); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        :root { --primary: #007bff; --bg: #f4f7f6; }
+        body { background: var(--bg); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         
-        /* Splash Screen */
+        /* Splash Screen Facebook Style */
         #splash { position: fixed; inset: 0; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: 0.8s; }
-        #splash img { width: 150px; margin-bottom: 15px; }
-        .tagline { color: #8899a6; font-size: 14px; letter-spacing: 1px; }
+        #splash img { width: 140px; }
+        .tagline { color: #8899a6; font-size: 13px; margin-top: 10px; letter-spacing: 1px; }
 
-        /* Dashboard Layout */
-        .main-container { display: flex; height: 100vh; width: 100%; opacity: 0; transition: 1s; }
-        .sidebar { width: 280px; background: white; border-right: 1px solid #eef2f6; padding: 30px 20px; }
-        .content { flex: 1; padding: 40px; overflow-y: auto; }
+        /* Layout */
+        .wrapper { display: flex; height: 100vh; opacity: 0; transition: 1s; }
+        .sidebar { width: 280px; background: white; border-right: 1px solid #e2e8f0; padding: 40px 20px; }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
         
-        .menu-item { padding: 12px 15px; border-radius: 12px; cursor: pointer; color: #64748b; transition: 0.3s; margin-bottom: 5px; font-weight: 500; }
-        .menu-item:hover, .menu-item.active { background: #e0f2fe; color: var(--primary); }
+        .nav-item { padding: 12px 18px; border-radius: 15px; cursor: pointer; color: #64748b; margin-bottom: 8px; font-weight: 600; display: flex; align-items: center; }
+        .nav-item:hover, .nav-item.active { background: #eff6ff; color: var(--primary); }
         
-        .card-custom { background: white; border-radius: 25px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.02); padding: 30px; }
+        .glass-card { background: white; border-radius: 30px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.03); padding: 35px; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -31,66 +31,68 @@
 
 <div id="splash">
     <img src="logo splash.png">
-    <p class="tagline">Your Health, Our Priority</p>
-    <div class="spinner-border text-primary mt-3" role="status"></div>
+    <div class="tagline">Your Health, Our Priority</div>
+    <div class="spinner-border text-primary mt-4" style="width: 1.5rem; height: 1.5rem;" role="status"></div>
 </div>
 
-<div id="app" class="main-container">
+<div id="app" class="wrapper">
     <div class="sidebar">
-        <img src="Logo Medi.png" style="width: 180px; margin-bottom: 40px;">
-        <div class="menu-item active" onclick="showTab('request')"><i class="bi bi-pencil-square me-2"></i> Permintaan Staf</div>
-        <div class="menu-item" onclick="showTab('generate')"><i class="bi bi-cpu me-2"></i> Generate Jadwal</div>
-        <div class="menu-item" onclick="showTab('log')"><i class="bi bi-journal-text me-2"></i> Log Keputusan</div>
-        <div class="mt-auto"><hr><div class="menu-item text-danger" onclick="location.reload()"><i class="bi bi-box-arrow-left me-2"></i> Keluar</div></div>
+        <img src="Logo Medi.png" class="mb-5" style="width: 100%;">
+        <div class="nav-item active" onclick="tab('request')"><i class="bi bi-calendar-plus me-3"></i> Input Permintaan</div>
+        <div class="nav-item" onclick="tab('log')"><i class="bi bi-file-earmark-medical me-3"></i> Log Keputusan</div>
+        <div class="mt-auto"><hr><div class="nav-item text-danger" onclick="location.reload()"><i class="bi bi-power me-3"></i> Keluar</div></div>
     </div>
 
-    <div class="content">
-        <h2 id="title" class="fw-bold mb-4">Input Permintaan</h2>
-        
-        <div id="tab-request" class="tab-content">
-            <div class="card-custom mb-4">
+    <div class="main-content">
+        <h2 id="page-title" class="fw-bold mb-4">Permintaan Staf</h2>
+
+        <div id="tab-request">
+            <div class="glass-card mb-4">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="small fw-bold">Nama Staf</label>
-                        <select id="stafList" class="form-select"></select>
+                        <label class="small fw-bold mb-2">Nama Staf</label>
+                        <select id="stafSelect" class="form-select"></select>
                     </div>
                     <div class="col-md-4">
-                        <label class="small fw-bold">Tanggal</label>
-                        <input type="date" id="targetDate" class="form-control">
+                        <label class="small fw-bold mb-2">Tanggal</label>
+                        <input type="date" id="reqDate" class="form-control">
                     </div>
                     <div class="col-md-4">
-                        <label class="small fw-bold">Jenis</label>
-                        <select id="typeReq" class="form-select">
+                        <label class="small fw-bold mb-2">Jenis Request</label>
+                        <select id="reqType" class="form-select">
                             <option value="Off">Permintaan Off</option>
                             <option value="Tukar">Tukar Shift</option>
                             <option value="Cuti">Cuti</option>
                         </select>
                     </div>
-                    <div class="col-12 text-end">
-                        <button onclick="submitRequest()" class="btn btn-primary px-4">Validasi & Simpan</button>
+                    <div class="col-12 text-end mt-4">
+                        <button onclick="save()" id="btnSave" class="btn btn-primary px-5 rounded-pill fw-bold">Validasi Permintaan</button>
                     </div>
                 </div>
             </div>
 
-            <div id="alert-panel" class="hidden alert alert-warning rounded-4 p-4">
-                <h5 class="fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i> Ada Benturan!</h5>
-                <p id="alert-msg"></p>
-                <div class="d-flex gap-2 mt-3">
-                    <button class="btn btn-sm btn-dark" onclick="manualOverride()">Intervensi Admin (Tetap Simpan)</button>
+            <div id="rekomendasi" class="hidden alert alert-warning rounded-4 p-4 border-0 shadow-sm">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-lightbulb-fill fs-4 me-3 text-warning"></i>
+                    <h5 class="fw-bold mb-0">Rekomendasi Asisten</h5>
+                </div>
+                <p id="pesan-rekomendasi" class="mb-0 text-dark"></p>
+                <div class="mt-3">
+                    <button class="btn btn-sm btn-outline-dark rounded-pill" onclick="tab('request')">Pilih Tanggal Lain</button>
                 </div>
             </div>
         </div>
 
-        <div id="tab-log" class="tab-content hidden">
-            <div class="card-custom">
-                <div id="log-table" class="table-responsive"></div>
+        <div id="tab-log" class="hidden">
+            <div class="glass-card">
+                <div id="log-content" class="table-responsive small"></div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const API = "https://script.google.com/macros/s/AKfycby-ayLfytVsskkZXag4mURSCvxLJWb_W8B5KHTQssitg00mAsJRjXJp7Gy0ciBSq4aDEw/exec";
+    const API = "https://script.google.com/macros/s/AKfycbx-V2DpHBZvW-3321-l2lrKtOisA-uXZYE0cEw-ANv-UEsxia_a_9hGCxfUqdG_JTjlaA/exec";
 
     window.onload = () => {
         setTimeout(() => {
@@ -103,52 +105,63 @@
         }, 3000);
     };
 
-    function callAPI(params, callback) {
-        const cbName = 'cb_' + Date.now();
-        window[cbName] = callback;
-        const script = document.createElement('script');
-        script.src = `${API}?${params}&callback=${cbName}`;
-        document.body.appendChild(script);
+    function call(params, callback) {
+        const cb = 'jsonp_' + Date.now();
+        window[cb] = callback;
+        const s = document.createElement('script');
+        s.src = `${API}?${params}&callback=${cb}`;
+        document.body.appendChild(s);
     }
 
     function loadStaf() {
-        callAPI('action=get_staf', (res) => {
-            const sel = document.getElementById('stafList');
-            res.data.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
+        call('action=get_staf', (res) => {
+            const el = document.getElementById('stafSelect');
+            el.innerHTML = res.data.map(s => `<option value="${s}">${s}</option>`).join('');
         });
     }
 
-    function submitRequest() {
-        const nama = document.getElementById('stafList').value;
-        const tgl = document.getElementById('targetDate').value;
-        const tipe = document.getElementById('typeReq').value;
+    function save() {
+        const n = document.getElementById('stafSelect').value;
+        const d = document.getElementById('reqDate').value;
+        const t = document.getElementById('reqType').value;
+        const btn = document.getElementById('btnSave');
+        const rek = document.getElementById('rekomendasi');
+
+        if(!d) return alert("Pilih tanggal dulu!");
         
-        callAPI(`action=submit_request&nama=${nama}&tanggal=${tgl}&jenis=${tipe}`, (res) => {
-            if (res.status === "conflict") {
-                document.getElementById('alert-panel').classList.remove('hidden');
-                document.getElementById('alert-msg').innerText = `${res.message} Saran: ${res.saran}`;
+        btn.disabled = true;
+        btn.innerText = "Mengecek Aturan...";
+
+        call(`action=submit_request&nama=${n}&tanggal=${d}&jenis=${t}`, (res) => {
+            btn.disabled = false;
+            btn.innerText = "Validasi Permintaan";
+            
+            if(res.status === "conflict") {
+                rek.classList.remove('hidden');
+                document.getElementById('pesan-rekomendasi').innerText = res.message + " " + res.saran;
             } else {
+                rek.classList.add('hidden');
                 alert(res.message);
-                document.getElementById('alert-panel').classList.add('hidden');
             }
         });
     }
 
-    function showTab(tab) {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-        document.getElementById('tab-' + tab).classList.remove('hidden');
-        document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-        event.currentTarget.classList.add('active');
-        if (tab === 'log') loadLog();
+    function tab(name) {
+        document.getElementById('tab-request').classList.add('hidden');
+        document.getElementById('tab-log').classList.add('hidden');
+        document.getElementById('tab-' + name).classList.remove('hidden');
+        document.getElementById('page-title').innerText = name === 'log' ? 'Log Keputusan' : 'Permintaan Staf';
+        if(name === 'log') loadLog();
     }
 
     function loadLog() {
-        callAPI('action=get_log', (res) => {
-            let h = '<table class="table small"><thead><tr><th>Waktu</th><th>Nama</th><th>Tgl</th><th>Status</th><th>Alasan</th></tr></thead><tbody>';
+        call('action=get_log', (res) => {
+            let h = '<table class="table"><thead><tr><th>Nama</th><th>Tanggal</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>';
             res.data.slice(1).reverse().forEach(r => {
-                h += `<tr><td>${new Date(r[0]).toLocaleDateString()}</td><td>${r[1]}</td><td>${r[2]}</td><td><span class="badge ${r[3]=='DITOLAK'?'bg-danger':'bg-success'}">${r[3]}</span></td><td>${r[4]}</td></tr>`;
+                const badge = r[3] === 'DISETUJUI' ? 'bg-success' : 'bg-danger';
+                h += `<tr><td>${r[1]}</td><td>${r[2]}</td><td><span class="badge ${badge}">${r[3]}</span></td><td>${r[4]}</td></tr>`;
             });
-            document.getElementById('log-table').innerHTML = h + '</tbody></table>';
+            document.getElementById('log-content').innerHTML = h + '</tbody></table>';
         });
     }
 </script>
