@@ -3,89 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEDI SIFT v.Final</title>
+    <title>MEDI SIFT | Hospital System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background: #f4f7f9; font-family: sans-serif; height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
-        .card { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 350px; text-align: center; }
+        :root { --primary: #0ea5e9; --bg-soft: #f8fafc; }
+        body { background: var(--bg-soft); font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
+        
+        /* Kartu Login */
+        .card-auth { background: white; padding: 40px; border-radius: 30px; width: 90%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); text-align: center; border: 1px solid #f1f5f9; }
+        .brand-icon { background: var(--primary); width: 60px; height: 60px; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 10px 20px rgba(14, 165, 233, 0.2); }
+        .form-control { border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; margin-bottom: 12px; text-align: center; font-size: 14px; }
+        
+        /* Tombol */
+        .btn-main { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 14px; width: 100%; font-weight: 700; transition: 0.3s; margin-top: 10px; }
+        .btn-main:hover { background: #0284c7; transform: translateY(-2px); }
+        .btn-guest { background: white; color: var(--primary); border: 2px solid #f0f9ff; padding: 12px; border-radius: 14px; width: 100%; margin-top: 10px; font-weight: 600; }
+        
         .hidden { display: none !important; }
-        #log { font-size: 11px; color: #666; margin-top: 20px; text-align: left; background: #eee; padding: 10px; border-radius: 8px; max-height: 100px; overflow: auto; }
+        #loader { color: var(--primary); font-size: 0.85rem; margin-top: 20px; font-weight: 600; }
+        
+        /* Dashboard Roster */
+        .card-dash { background: white; padding: 30px; border-radius: 24px; width: 95%; max-width: 900px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); }
+        .table-roster { font-size: 12px; margin-top: 20px; }
+        .table-roster th { background: #f1f5f9; color: #475569; font-weight: 600; }
     </style>
 </head>
 <body>
 
-<div id="login-box" class="card">
-    <h3 class="fw-bold mb-4">MEDI SIFT</h3>
-    <input type="text" id="user" class="form-control mb-2" placeholder="Username">
-    <input type="password" id="pass" class="form-control mb-3" placeholder="Password">
-    <button onclick="kirim('admin')" class="btn btn-primary w-100 mb-2">Login Admin</button>
-    <button onclick="kirim('guest')" class="btn btn-outline-secondary w-100">Akses Tamu</button>
-    
-    <div id="loader" class="hidden mt-3">
-        <div class="spinner-border spinner-border-sm text-primary"></div>
-        <span class="ms-2">Menghubungkan...</span>
+<div id="login-ui" class="card-auth">
+    <div class="brand-icon">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
     </div>
-    <div id="log" class="hidden"></div>
+    <h4 class="fw-bold mb-1">MEDI SIFT</h4>
+    <p class="text-muted small mb-4">Smart Scheduling System</p>
+    
+    <div id="input-group">
+        <input type="text" id="userInput" class="form-control" placeholder="Username">
+        <input type="password" id="passInput" class="form-control" placeholder="Password">
+        
+        <button onclick="proses('admin')" class="btn btn-main">Masuk Admin</button>
+        <button onclick="proses('guest')" class="btn btn-guest">Akses Tamu (Lihat Jadwal)</button>
+    </div>
+
+    <div id="loader" class="hidden">
+        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+        Memverifikasi data...
+    </div>
 </div>
 
-<div id="dash" class="card hidden" style="width: 90%; max-width: 800px;">
-    <h4 id="greet" class="fw-bold text-primary"></h4>
-    <hr>
-    <div id="tabel" class="table-responsive"></div>
-    <button onclick="location.reload()" class="btn btn-danger btn-sm mt-3">Keluar</button>
+<div id="dash-ui" class="hidden text-center w-100 p-3">
+    <div class="card-dash mx-auto">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="text-start">
+                <h4 id="greet" class="fw-bold text-primary mb-0"></h4>
+                <p class="text-muted small mb-0">Data Jadwal Rumah Sakit Terkini</p>
+            </div>
+            <button onclick="location.reload()" class="btn btn-sm btn-outline-danger px-3 rounded-pill">Keluar</button>
+        </div>
+        
+        <div class="table-responsive">
+            <div id="roster-data">
+                </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZxSlkwBzm06xCmKxm7xVckSxoTKgyRpY-5moj5nLWRvkgut_vFXGuQeHaperOvLNGKw/exec";
+    // URL API yang sudah kita verifikasi aktif
+    const API_URL = "https://script.google.com/macros/s/AKfycbyZxSlkwBzm06xCmKxm7xVckSxoTKgyRpY-5moj5nLWRvkgut_vFXGuQeHaperOvLNGKw/exec";
 
-    function addLog(msg) {
-        const logBox = document.getElementById('log');
-        logBox.classList.remove('hidden');
-        logBox.innerHTML += "> " + msg + "<br>";
-    }
-
-    function kirim(role) {
-        const u = document.getElementById('user').value;
-        const p = document.getElementById('pass').value;
+    function proses(role) {
+        const u = document.getElementById('userInput').value;
+        const p = document.getElementById('passInput').value;
         const loader = document.getElementById('loader');
-        
-        addLog("Memulai koneksi ke Google...");
-        loader.classList.remove('hidden');
+        const inputGroup = document.getElementById('input-group');
 
-        const callbackName = 'google_cb_' + Date.now();
-        window[callbackName] = function(data) {
-            addLog("Respon diterima dari Google.");
+        if(role === 'admin' && (!u || !p)) {
+            alert("Harap masukkan username dan password admin.");
+            return;
+        }
+
+        // Tampilkan loading, sembunyikan input
+        loader.classList.remove('hidden');
+        inputGroup.classList.add('hidden');
+
+        // Gunakan JSONP untuk menembus blokir browser
+        const cbName = 'google_jsonp_' + Math.floor(Math.random() * 100000);
+        window[cbName] = function(res) {
             loader.classList.add('hidden');
-            if (data.status === "success") {
-                document.getElementById('login-box').classList.add('hidden');
-                document.getElementById('dash').classList.remove('hidden');
-                document.getElementById('greet').innerText = "Halo, " + (data.name || "Tamu");
-                if(data.data) render(data.data);
+            if(res.status === "success") {
+                renderDashboard(res, role);
             } else {
-                addLog("Error: " + data.message);
-                alert(data.message);
+                inputGroup.classList.remove('hidden');
+                alert("Gagal: " + res.message);
             }
-            delete window[callbackName];
+            // Bersihkan script tag setelah selesai
+            const scriptTag = document.getElementById('api-call');
+            if(scriptTag) scriptTag.remove();
+            delete window[cbName];
         };
 
-        const finalUrl = `${SCRIPT_URL}?action=${role==='admin'?'login':'get_roster'}&user=${encodeURIComponent(u)}&pw=${encodeURIComponent(p)}&callback=${callbackName}`;
+        const finalLink = `${API_URL}?action=${role==='admin'?'login':'get_roster'}&user=${encodeURIComponent(u)}&pw=${encodeURIComponent(p)}&callback=${cbName}`;
         
         const script = document.createElement('script');
-        script.src = finalUrl;
+        script.id = 'api-call';
+        script.src = finalLink;
         script.onerror = () => {
-            addLog("Gagal memuat Script. Cek koneksi atau URL.");
+            alert("Koneksi gagal. Pastikan URL API sudah benar.");
             loader.classList.add('hidden');
+            inputGroup.classList.remove('hidden');
         };
         document.body.appendChild(script);
     }
 
-    function render(data) {
-        let h = '<table class="table table-sm table-bordered mt-2" style="font-size:12px;">';
-        data.forEach(row => {
-            h += '<tr>' + row.map(c => `<td>${c}</td>`).join('') + '</tr>';
-        });
-        document.getElementById('tabel').innerHTML = h + '</table>';
+    function renderDashboard(res, role) {
+        document.getElementById('login-ui').classList.add('hidden');
+        document.getElementById('dash-ui').classList.remove('hidden');
+        document.getElementById('greet').innerText = "Halo, " + (role === 'admin' ? res.name : "Tamu");
+        
+        if(res.data) {
+            let html = '<table class="table table-bordered table-striped table-hover table-roster"><thead>';
+            // Asumsi baris pertama sheet adalah Header
+            res.data.forEach((row, rowIndex) => {
+                html += '<tr>';
+                row.forEach(cell => {
+                    if(rowIndex === 0) {
+                        html += `<th>${cell}</th>`;
+                    } else {
+                        html += `<td>${cell}</td>`;
+                    }
+                });
+                html += '</tr>';
+                if(rowIndex === 0) html += '</thead><tbody>';
+            });
+            html += '</tbody></table>';
+            document.getElementById('roster-data').innerHTML = html;
+        } else {
+            document.getElementById('roster-data').innerHTML = `
+                <div class="py-5 text-muted">
+                    <p>Berhasil masuk sebagai Tamu. <br> Silakan hubungi admin untuk sinkronisasi data jadwal.</p>
+                </div>
+            `;
+        }
     }
 </script>
+
 </body>
 </html>
