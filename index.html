@@ -3,161 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEDI SIFT System</title>
+    <title>MEDI SIFT | Aster Atas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        :root { --med-blue: #007bff; --bg-light: #f8fafc; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg-light); overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-
-        /* SPLASH SCREEN FACEBOOK STYLE */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #ffffff; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 9999;
-            transition: opacity 0.8s ease-out, visibility 0.8s;
-        }
-        #splash-screen.fade-away { opacity: 0; visibility: hidden; }
-        .splash-logo { width: 150px; height: auto; margin-bottom: 10px; animation: zoomIn 1s ease-out; }
-        .splash-tagline { font-size: 14px; color: #8899a6; font-weight: 500; letter-spacing: 0.5px; opacity: 0; animation: fadeInText 1s ease-in forwards; animation-delay: 0.5s; }
-
-        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        @keyframes fadeInText { from { opacity: 0; } to { opacity: 1; } }
-
-        /* AUTH & CONTENT CONTAINER */
-        .main-wrapper { display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; }
+        :root { --primary: #007bff; --soft-bg: #f8fafc; }
+        body { background: var(--soft-bg); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         
-        /* LOGIN CARD */
-        .auth-card { 
-            background: white; padding: 50px 40px; border-radius: 40px; 
-            width: 100%; max-width: 420px; text-align: center;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;
-        }
-        .login-logo { width: 280px; height: auto; margin-bottom: 30px; display: block; margin-left: auto; margin-right: auto; }
-        .form-control { border-radius: 15px; padding: 14px; border: 1.5px solid #e2e8f0; margin-bottom: 15px; text-align: center; }
-        .btn-main { background: var(--med-blue); color: white; border: none; padding: 16px; border-radius: 15px; width: 100%; font-weight: 700; transition: 0.3s; }
-        .btn-guest { background: #f0f9ff; color: var(--med-blue); border: none; padding: 14px; border-radius: 15px; width: 100%; margin-top: 12px; font-weight: 600; }
+        /* Splash Screen */
+        #splash { position: fixed; inset: 0; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: 0.8s; }
+        #splash img { width: 150px; margin-bottom: 15px; }
+        .tagline { color: #8899a6; font-size: 14px; letter-spacing: 1px; }
 
-        /* DASHBOARD MENU SYSTEM */
-        .dash-container { background: white; width: 95%; max-width: 1000px; height: 85vh; border-radius: 35px; overflow: hidden; display: flex; box-shadow: 0 30px 80px rgba(0,0,0,0.08); }
-        .sidebar { width: 260px; background: #fcfdfe; border-right: 1px solid #f1f5f9; padding: 30px 20px; display: flex; flex-direction: column; }
-        .content-area { flex: 1; padding: 40px; overflow-y: auto; background: #fff; }
+        /* Dashboard Layout */
+        .main-container { display: flex; height: 100vh; width: 100%; opacity: 0; transition: 1s; }
+        .sidebar { width: 280px; background: white; border-right: 1px solid #eef2f6; padding: 30px 20px; }
+        .content { flex: 1; padding: 40px; overflow-y: auto; }
         
-        .menu-item { 
-            padding: 12px 18px; border-radius: 12px; cursor: pointer; color: #64748b; 
-            font-weight: 600; margin-bottom: 8px; transition: 0.2s; display: flex; align-items: center;
-        }
-        .menu-item i { margin-right: 12px; font-size: 1.2rem; }
-        .menu-item:hover { background: #f1f5f9; color: var(--med-blue); }
-        .menu-item.active { background: #e0f2fe; color: var(--med-blue); }
-
+        .menu-item { padding: 12px 15px; border-radius: 12px; cursor: pointer; color: #64748b; transition: 0.3s; margin-bottom: 5px; font-weight: 500; }
+        .menu-item:hover, .menu-item.active { background: #e0f2fe; color: var(--primary); }
+        
+        .card-custom { background: white; border-radius: 25px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.02); padding: 30px; }
         .hidden { display: none !important; }
-        #loading-text { color: var(--med-blue); font-size: 0.9rem; margin-top: 20px; font-weight: 600; }
     </style>
 </head>
 <body>
 
-<div id="splash-screen">
-    <img src="logo splash.png" alt="Splash Logo" class="splash-logo">
-    <p class="splash-tagline">Your Health, Our Priority</p>
-    <div class="spinner-border text-primary mt-4" style="width: 1.5rem; height: 1.5rem; border-width: 0.2em;" role="status"></div>
+<div id="splash">
+    <img src="logo splash.png">
+    <p class="tagline">Your Health, Our Priority</p>
+    <div class="spinner-border text-primary mt-3" role="status"></div>
 </div>
 
-<div class="main-wrapper">
-    <div id="login-ui" class="auth-card">
-        <img src="Logo Medi.png" alt="Medi Sift Logo" class="login-logo">
-        <div id="input-area">
-            <input type="text" id="userInput" class="form-control" placeholder="Username" autocomplete="off">
-            <input type="password" id="passInput" class="form-control" placeholder="Password">
-            <button onclick="proses('login')" class="btn btn-main shadow-sm">Masuk Admin</button>
-            <button onclick="proses('guest')" class="btn btn-guest">Lihat Jadwal (Tamu)</button>
-        </div>
-        <div id="loading-text" class="hidden">
-            <div class="spinner-grow spinner-grow-sm me-2"></div> Menghubungkan...
-        </div>
+<div id="app" class="main-container">
+    <div class="sidebar">
+        <img src="Logo Medi.png" style="width: 180px; margin-bottom: 40px;">
+        <div class="menu-item active" onclick="showTab('request')"><i class="bi bi-pencil-square me-2"></i> Permintaan Staf</div>
+        <div class="menu-item" onclick="showTab('generate')"><i class="bi bi-cpu me-2"></i> Generate Jadwal</div>
+        <div class="menu-item" onclick="showTab('log')"><i class="bi bi-journal-text me-2"></i> Log Keputusan</div>
+        <div class="mt-auto"><hr><div class="menu-item text-danger" onclick="location.reload()"><i class="bi bi-box-arrow-left me-2"></i> Keluar</div></div>
     </div>
 
-    <div id="dash-ui" class="dash-container hidden">
-        <div class="sidebar">
-            <div class="mb-4 px-2">
-                <h5 class="fw-bold text-primary mb-0">MEDI SIFT</h5>
-                <small class="text-muted" id="user-role"></small>
+    <div class="content">
+        <h2 id="title" class="fw-bold mb-4">Input Permintaan</h2>
+        
+        <div id="tab-request" class="tab-content">
+            <div class="card-custom mb-4">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="small fw-bold">Nama Staf</label>
+                        <select id="stafList" class="form-select"></select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="small fw-bold">Tanggal</label>
+                        <input type="date" id="targetDate" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="small fw-bold">Jenis</label>
+                        <select id="typeReq" class="form-select">
+                            <option value="Off">Permintaan Off</option>
+                            <option value="Tukar">Tukar Shift</option>
+                            <option value="Cuti">Cuti</option>
+                        </select>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button onclick="submitRequest()" class="btn btn-primary px-4">Validasi & Simpan</button>
+                    </div>
+                </div>
             </div>
-            <div class="menu-item active" onclick="switchTab('jadwal')"><i class="bi bi-calendar3"></i> Jadwal MOD</div>
-            <div class="menu-item" onclick="switchTab('staff')"><i class="bi bi-people"></i> Daftar Staff</div>
-            <div class="menu-item" onclick="switchTab('info')"><i class="bi bi-info-circle"></i> Info RS</div>
-            <div class="mt-auto">
-                <div class="menu-item text-danger" onclick="location.reload()"><i class="bi bi-box-arrow-left"></i> Keluar</div>
+
+            <div id="alert-panel" class="hidden alert alert-warning rounded-4 p-4">
+                <h5 class="fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i> Ada Benturan!</h5>
+                <p id="alert-msg"></p>
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-sm btn-dark" onclick="manualOverride()">Intervensi Admin (Tetap Simpan)</button>
+                </div>
             </div>
         </div>
-        <div class="content-area">
-            <h3 id="greet" class="fw-bold mb-4"></h3>
-            <div id="main-content-render">
-                </div>
+
+        <div id="tab-log" class="tab-content hidden">
+            <div class="card-custom">
+                <div id="log-table" class="table-responsive"></div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyZxSlkwBzm06xCmKxm7xVckSxoTKgyRpY-5moj5nLWRvkgut_vFXGuQeHaperOvLNGKw/exec";
+    const API = "https://script.google.com/macros/s/AKfycby-ayLfytVsskkZXag4mURSCvxLJWb_W8B5KHTQssitg00mAsJRjXJp7Gy0ciBSq4aDEw/exec";
 
-    // Splash Effect
     window.onload = () => {
         setTimeout(() => {
-            const splash = document.getElementById('splash-screen');
-            splash.classList.add('fade-away');
-            document.body.style.overflow = 'auto';
+            document.getElementById('splash').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('splash').classList.add('hidden');
+                document.getElementById('app').style.opacity = '1';
+                loadStaf();
+            }, 800);
         }, 3000);
     };
 
-    function proses(tipe) {
-        const u = document.getElementById('userInput').value;
-        const p = document.getElementById('passInput').value;
-        document.getElementById('loading-text').classList.remove('hidden');
-        document.getElementById('input-area').classList.add('hidden');
-
-        const cb = 'jsonp_' + Date.now();
-        window[cb] = (res) => {
-            if(res.status === "success") {
-                renderDash(res, tipe);
-            } else {
-                alert(res.message);
-                document.getElementById('loading-text').classList.add('hidden');
-                document.getElementById('input-area').classList.remove('hidden');
-            }
-        };
-
+    function callAPI(params, callback) {
+        const cbName = 'cb_' + Date.now();
+        window[cbName] = callback;
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=${tipe==='login'?'login':'get_roster'}&user=${encodeURIComponent(u)}&pw=${encodeURIComponent(p)}&callback=${cb}`;
+        script.src = `${API}?${params}&callback=${cbName}`;
         document.body.appendChild(script);
     }
 
-    function renderDash(res, tipe) {
-        document.getElementById('login-ui').classList.add('hidden');
-        document.getElementById('dash-ui').classList.remove('hidden');
-        document.getElementById('greet').innerText = "Halo, " + (res.name || "Tamu");
-        document.getElementById('user-role').innerText = tipe === 'login' ? "Administrator" : "Guest Access";
-        
-        if(res.data) {
-            let html = '<table class="table table-hover border"><tbody>';
-            res.data.forEach((row, idx) => {
-                html += `<tr class="${idx === 0 ? 'table-light fw-bold' : ''}">`;
-                row.forEach(cell => html += `<td>${cell}</td>`);
-                html += '</tr>';
-            });
-            document.getElementById('main-content-render').innerHTML = html + '</tbody></table>';
-        }
+    function loadStaf() {
+        callAPI('action=get_staf', (res) => {
+            const sel = document.getElementById('stafList');
+            res.data.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
+        });
     }
 
-    function switchTab(tab) {
-        // Logika pindah tab bisa dikembangkan di sini
-        const items = document.querySelectorAll('.menu-item');
-        items.forEach(i => i.classList.remove('active'));
-        event.currentTarget.classList.add('active');
+    function submitRequest() {
+        const nama = document.getElementById('stafList').value;
+        const tgl = document.getElementById('targetDate').value;
+        const tipe = document.getElementById('typeReq').value;
         
-        if(tab !== 'jadwal') {
-            document.getElementById('main-content-render').innerHTML = `<div class="text-center py-5 text-muted"><i class="bi bi-cone-striped fs-1"></i><br>Fitur ${tab} sedang dalam pengembangan.</div>`;
-        }
+        callAPI(`action=submit_request&nama=${nama}&tanggal=${tgl}&jenis=${tipe}`, (res) => {
+            if (res.status === "conflict") {
+                document.getElementById('alert-panel').classList.remove('hidden');
+                document.getElementById('alert-msg').innerText = `${res.message} Saran: ${res.saran}`;
+            } else {
+                alert(res.message);
+                document.getElementById('alert-panel').classList.add('hidden');
+            }
+        });
+    }
+
+    function showTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+        document.getElementById('tab-' + tab).classList.remove('hidden');
+        document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        if (tab === 'log') loadLog();
+    }
+
+    function loadLog() {
+        callAPI('action=get_log', (res) => {
+            let h = '<table class="table small"><thead><tr><th>Waktu</th><th>Nama</th><th>Tgl</th><th>Status</th><th>Alasan</th></tr></thead><tbody>';
+            res.data.slice(1).reverse().forEach(r => {
+                h += `<tr><td>${new Date(r[0]).toLocaleDateString()}</td><td>${r[1]}</td><td>${r[2]}</td><td><span class="badge ${r[3]=='DITOLAK'?'bg-danger':'bg-success'}">${r[3]}</span></td><td>${r[4]}</td></tr>`;
+            });
+            document.getElementById('log-table').innerHTML = h + '</tbody></table>';
+        });
     }
 </script>
 </body>
