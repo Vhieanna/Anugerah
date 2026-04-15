@@ -6,7 +6,7 @@
 
 <style>
 body{font-family:Arial;background:#eef7fb}
-.card{background:white;margin:20px;padding:20px;border-radius:12px}
+.card{background:#fff;margin:20px;padding:20px;border-radius:10px}
 .btn{background:#2bb3c0;color:white;border:none;padding:8px;margin:5px}
 .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
 .box{background:#f9f9f9;padding:10px;border-radius:8px}
@@ -17,17 +17,15 @@ body{font-family:Arial;background:#eef7fb}
 
 <div class="card" id="loginPage">
 <h2>MediSift</h2>
-<input id="username" placeholder="username"><br>
-<input id="password" type="password"><br>
+<input id="u" placeholder="username"><br>
+<input id="p" type="password"><br>
 <button onclick="login()">Login</button>
 <button onclick="guest()">Guest</button>
 </div>
 
 <div id="app" style="display:none">
 
-<div class="card">
-<b id="user"></b>
-</div>
+<div class="card"><b id="user"></b></div>
 
 <div class="card">
 <h3>Request</h3>
@@ -35,25 +33,20 @@ body{font-family:Arial;background:#eef7fb}
 </div>
 
 <div class="card">
-<h3>Warning</h3>
-<div id="warn"></div>
-</div>
-
-<div class="card">
-<button onclick="generate()">Generate</button>
-<button onclick="saveFinal()">Finalisasi</button>
-<button onclick="exportPDF()">Export PDF</button>
+<button onclick="gen()">Generate</button>
+<button onclick="save()">Finalisasi</button>
+<button onclick="print()">PDF</button>
 </div>
 
 <div class="card">
 <h3>Kalender</h3>
-<div id="kalender" class="grid"></div>
+<div id="kal" class="grid"></div>
 </div>
 
 </div>
 
 <script>
-const GAS="https://script.google.com/macros/s/AKfycby216bFHHG0LPnyQDQFL7D-Zp4KmIifQfUKAahW5BT717Q4bWiFNoUq2YsPAu2z8orncw/exec";
+const GAS="https://script.google.com/macros/s/AKfycbyO4ms9ohkBWCMgtbipw9LlbyM-4qFZ6_X6gapsscP_Y6GXLn8nLS6xg5i0L9fP5DrGoQ/exec";
 
 let role="";
 
@@ -63,29 +56,28 @@ fetch(GAS,{
 method:"POST",
 body:JSON.stringify({
 action:"login",
-username:username.value,
-password:password.value
+username:u.value,
+password:p.value
 })
 }).then(r=>r.json()).then(res=>{
 if(res.role==="admin"){
 role="admin";
-show(res.name);
-}else alert("gagal");
+start(res.name);
+}else alert("Login gagal");
 });
 }
 
 function guest(){
 role="guest";
-show("Guest");
+start("Guest");
 }
 
-function show(name){
+function start(name){
 loginPage.style.display="none";
 app.style.display="block";
 user.innerText="Login: "+name;
 
 loadReq();
-loadWarn();
 }
 
 // REQUEST
@@ -93,66 +85,52 @@ function loadReq(){
 fetch(GAS+"?action=requests")
 .then(r=>r.json())
 .then(d=>{
-let html="";
+let h="";
 d.forEach(x=>{
-html+=`
+h+=`
 <div>${x.nama} ${x.tanggal} ${x.jenis} ${x.status}
 ${role==="admin"&&x.status==="PENDING"?
 `<button onclick="ap(${x.row})">✔</button>
 <button onclick="rj(${x.row})">✖</button>`:""}
 </div>`;
 });
-req.innerHTML=html;
+req.innerHTML=h;
 });
 }
 
 function ap(r){
 fetch(GAS,{method:"POST",body:JSON.stringify({action:"approve",row:r})})
-.then(()=>loadReq());
+.then(loadReq);
 }
 
 function rj(r){
 fetch(GAS,{method:"POST",body:JSON.stringify({action:"reject",row:r})})
-.then(()=>loadReq());
-}
-
-// WARNING
-function loadWarn(){
-fetch(GAS+"?action=warning")
-.then(r=>r.json())
-.then(d=>{
-warn.innerHTML=d.map(x=>`<p style=color:red>${x.nama} ${x.msg}</p>`).join("");
-});
+.then(loadReq);
 }
 
 // GENERATE
-function generate(){
+function gen(){
 fetch(GAS+"?action=generate")
 .then(r=>r.json())
 .then(render);
 }
 
-function render(data){
-let html="";
-for(let t in data){
-html+=`<div class="box"><b>${t}</b><br>`;
-for(let s in data[t]){
-html+=`${s}: ${data[t][s]}<br>`;
+function render(d){
+let h="";
+for(let t in d){
+h+=`<div class="box"><b>${t}</b><br>`;
+for(let s in d[t]){
+h+=`${s}: ${d[t][s]}<br>`;
 }
-html+="</div>";
+h+="</div>";
 }
-kalender.innerHTML=html;
+kal.innerHTML=h;
 }
 
-// FINAL
-function saveFinal(){
-fetch(GAS+"?action=saveFinal")
+// SAVE
+function save(){
+fetch(GAS+"?action=save")
 .then(()=>alert("Final tersimpan"));
-}
-
-// PDF
-function exportPDF(){
-window.print();
 }
 </script>
 
